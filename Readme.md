@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Андрей Абрамов](https://up.htmlacademy.ru/ecmascript/15/user/1558623).
-* Наставник: `Неизвестно`.
+* Наставник: [Михаил Кислый](https://htmlacademy.ru/profile/smart-grizzly).
 
 ---
 
