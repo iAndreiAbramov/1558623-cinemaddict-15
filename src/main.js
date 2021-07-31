@@ -8,6 +8,7 @@ import {getSortPanelHtml} from './view/sort-panel';
 import {getFilmCardHtml} from './view/film-card';
 import {getMoreHtml} from './view/more-button';
 import {getFilmPopupHtml} from './view/film-popup';
+import {getRandomFilmData} from './mock-data/film-data';
 
 const NUMBER_OF_REPEATS = 1;
 const NUMBER_OF_LIST_CARDS = 5;
@@ -68,3 +69,5 @@ const popupContainer = document.querySelector('.footer');
 const filmPopup = getFilmPopupHtml();
 
 insertHtmlElement(popupContainer, filmPopup, 'afterend');
+
+console.log(getRandomFilmData(20));
