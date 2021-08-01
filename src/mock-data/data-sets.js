@@ -99,3 +99,10 @@ export const Emotions = [
   'puke',
   'angry',
 ];
+
+export const EmotionsImages = {
+  'angry': './images/emoji/angry.png',
+  'sleeping': './images/emoji/sleeping.png',
+  'puke': './images/emoji/puke.png',
+  'smile': './images/emoji/smile.png',
+};
