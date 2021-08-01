@@ -5,14 +5,14 @@ import {getUserRankHtml} from './view/user-rank';
 import {getNumberOfFilmsHtml} from './view/number-of-films';
 import {getFiltersMenuHtml} from './view/filters-menu';
 import {getSortPanelHtml} from './view/sort-panel';
-import {getFilmCardHtml} from './view/film-card';
 import {getMoreHtml} from './view/more-button';
 import {moviesData} from './mock-data/movies-data';
 import {insertHtmlElement} from './services/utils';
-import {setOpenPopupHandler} from './modules/show-popup';
-
-const NUMBER_OF_LIST_CARDS = 5;
-const NUMBER_OF_EXTRA_CARDS = 2;
+import {setOpenPopupHandler} from './modules/show-popup-handler';
+import {setMoreButtonHandler} from './modules/more-button-handler';
+import {renderFilmsList} from './modules/render-films-list';
+import {renderExtraData} from './modules/render-extra-data';
+import {sortByCommentsNumber, sortByRating} from './modules/data-sort';
 
 const userRankContainer = document.querySelector('.header');
 const userRank = getUserRankHtml();
@@ -43,31 +43,20 @@ insertHtmlElement(filmListsContainer, filmsListHtml, 'afterbegin');
 insertHtmlElement(filmListsContainer, topRatedListHtml, 'beforeend');
 insertHtmlElement(filmListsContainer, mostCommentedListHtml, 'beforeend');
 
-const filmsContainer = document.querySelectorAll('.films-list__container')[0];
 const topRatedContainer = document.querySelectorAll('.films-list__container')[1];
 const mostCommentedContainer = document.querySelectorAll('.films-list__container')[2];
-
-//todo: Вынести в отдельный модуль вставку данных уже после применения фильтров
-for (let i = 0; i < NUMBER_OF_LIST_CARDS; i++) {
-  const filmCard = getFilmCardHtml(moviesData[i]);
-  insertHtmlElement(filmsContainer, filmCard, 'beforeend');
-}
 
 const showMoreContainer = document.querySelector('.films-list');
 const showMoreButton = getMoreHtml();
 
 insertHtmlElement(showMoreContainer, showMoreButton, 'beforeend');
+renderFilmsList(moviesData);
 
-//todo: Вынести в отдельный модуль вставку данных после применения соотв. фильтров
-for (let i = 0; i < NUMBER_OF_EXTRA_CARDS; i++) {
-  const filmCard = getFilmCardHtml(moviesData[i]);
-  insertHtmlElement(topRatedContainer, filmCard, 'beforeend');
-}
-for (let i = 0; i < NUMBER_OF_EXTRA_CARDS; i++) {
-  const filmCard = getFilmCardHtml(moviesData[i]);
-  insertHtmlElement(mostCommentedContainer, filmCard, 'beforeend');
-}
+renderExtraData(topRatedContainer, sortByRating(moviesData));
+renderExtraData(mostCommentedContainer, sortByCommentsNumber(moviesData));
 
-setOpenPopupHandler();
+setOpenPopupHandler('.films-list__container');
+setMoreButtonHandler();
 
-console.log(moviesData[0]);
+// eslint-disable-next-line no-console
+//console.log(moviesData[0]);
