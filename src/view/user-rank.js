@@ -1,5 +1,5 @@
 import {getWatchedMovies} from '../modules/data-filters';
-import {moviesData} from '../mock-data/film-data';
+import {moviesData} from '../mock-data/movies-data';
 
 const UserRanks = {
   0: '',

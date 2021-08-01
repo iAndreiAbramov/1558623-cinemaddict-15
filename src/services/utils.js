@@ -25,10 +25,11 @@ export const getRandomItem = (arrayOfItems) => {
 
 export const getRandomSubArray = (arrayOfItems) => arrayOfItems.filter(() => getRandomInteger(0, 1));
 
-export const getRandomDescription = (arrayOfStrings, maxLength) => {
-  let description = getRandomSubArray(arrayOfStrings).join(' ');
+export const getRandomDescription = (arrayOfStrings) => getRandomSubArray(arrayOfStrings).join(' ');
+
+export const getShortDescription = (description, maxLength) => {
   if (description.length > maxLength) {
-    description = `${description.substr(0, 139)}...`;
+    description = `${description.substr(0, maxLength)}...`;
   }
   return description;
 };

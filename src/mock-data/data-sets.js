@@ -24,13 +24,13 @@ export const FilmsDirectors = [
   'David Lynch',
   'Ethan Coen',
   'Joel Coen',
-  'Nikita Bondarchuk',
+  'Nikita Mikhalkov',
 ];
 
 export const Writers = [
-  'Fedor Dostaevsky',
-  'Lev Tolstoi',
-  'Viktor Pelevin',
+  'Feodor Dostoevsky',
+  'Lev Tolstoy',
+  'Victor Pelevin',
   'Hans Christian Andersen',
   'Stiven King',
   'Donald Trump',
@@ -38,7 +38,7 @@ export const Writers = [
 
 export const Actors = [
   'Robert De Niro',
-  'Fedor Mikhalkov',
+  'Feodor Bondarchuk',
   'Leonardo Di Kaprio',
   'Nikita Kozlovski',
   'Al Pachino',

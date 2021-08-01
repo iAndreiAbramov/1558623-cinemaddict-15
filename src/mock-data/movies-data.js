@@ -6,7 +6,8 @@ import {
   getRandomFloat,
   getRandomInteger,
   getRandomItem,
-  getRandomSubArray, transformDuration
+  getRandomSubArray,
+  transformDuration
 } from '../services/utils';
 import {
   Actors,
@@ -30,7 +31,7 @@ const MIN_AGE_RATING = 0;
 const MAX_AGE_RATING = 100;
 const MIN_RUN_TIME = 60;
 const MAX_RUN_TIME = 240;
-const MAX_DESCRIPTION_LENGTH = 140;
+
 
 const NUMBER_OF_MOVIES = 100;
 
@@ -50,12 +51,12 @@ const getRandomFilmData = (numberOfMovies) => {
         writers: getRandomSubArray(Writers).join(', '),
         actors: getRandomSubArray(Actors).join(', '),
         release: {
-          date: getRandomDate('YYYY'),
+          date: getRandomDate('DD MMMM YYYY'),
           releaseCountry: getRandomItem(ReleaseCountries),
         },
         runtime: transformDuration(getRandomInteger(MIN_RUN_TIME, MAX_RUN_TIME)),
-        genre: getRandomSubArray(Genres).join(', '),
-        description: getRandomDescription(Descriptions, MAX_DESCRIPTION_LENGTH),
+        genre: getRandomSubArray(Genres).join(' '),
+        description: getRandomDescription(Descriptions),
       },
       userDetails: {
         watchlist: getRandomBoolean(),

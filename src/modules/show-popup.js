@@ -1,15 +1,14 @@
 import {getFilmPopupHtml} from '../view/film-popup';
-import {insertHtmlElement, isEscEvent} from '../services/utils';
-import {moviesData} from '../mock-data/film-data';
+import {getRandomInteger, insertHtmlElement, isEscEvent} from '../services/utils';
+import {moviesData} from '../mock-data/movies-data';
 
 export const setOpenPopupHandler = () => {
   const cardsContainer = document.querySelector('.films-list__container');
   const popupContainer = document.querySelector('.footer');
 
-  //todo: Реализовать подстановку данных того фильма, на который кликнули
-  const filmPopup = getFilmPopupHtml(moviesData[0]);
-
   cardsContainer.addEventListener('click', (clickEvt) => {
+  //todo: Реализовать подстановку данных того фильма, на который кликнули
+    const filmPopup = getFilmPopupHtml(moviesData[getRandomInteger(0, moviesData.length - 1)]);
     if (
       clickEvt.target.classList.contains('film-card__poster') ||
       clickEvt.target.classList.contains('film-card__title') ||

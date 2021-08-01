@@ -1,5 +1,5 @@
 import {getFavoriteMovies, getWatchedMovies, getWatchListMovies} from '../modules/data-filters';
-import {moviesData} from '../mock-data/film-data';
+import {moviesData} from '../mock-data/movies-data';
 
 export const getFiltersMenuHtml = () => `
   <nav class="main-navigation">

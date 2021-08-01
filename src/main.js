@@ -7,7 +7,7 @@ import {getFiltersMenuHtml} from './view/filters-menu';
 import {getSortPanelHtml} from './view/sort-panel';
 import {getFilmCardHtml} from './view/film-card';
 import {getMoreHtml} from './view/more-button';
-import {moviesData} from './mock-data/film-data';
+import {moviesData} from './mock-data/movies-data';
 import {insertHtmlElement} from './services/utils';
 import {setOpenPopupHandler} from './modules/show-popup';
 
@@ -70,5 +70,4 @@ for (let i = 0; i < NUMBER_OF_EXTRA_CARDS; i++) {
 
 setOpenPopupHandler();
 
-console.log(moviesData);
-
+console.log(moviesData[0]);
