@@ -7,20 +7,12 @@ import {getFiltersMenuHtml} from './view/filters-menu';
 import {getSortPanelHtml} from './view/sort-panel';
 import {getFilmCardHtml} from './view/film-card';
 import {getMoreHtml} from './view/more-button';
-import {getFilmPopupHtml} from './view/film-popup';
-import {getRandomFilmData} from './mock-data/film-data';
+import {moviesData} from './mock-data/film-data';
+import {insertHtmlElement} from './services/utils';
+import {setOpenPopupHandler} from './modules/show-popup';
 
-const NUMBER_OF_REPEATS = 1;
 const NUMBER_OF_LIST_CARDS = 5;
 const NUMBER_OF_EXTRA_CARDS = 2;
-
-const insertHtmlElement = (parent, htmlElement, position, repeats = NUMBER_OF_REPEATS) => {
-  if (parent) {
-    for (let i = 0; i < repeats; i++) {
-      parent.insertAdjacentHTML(position, htmlElement);
-    }
-  }
-};
 
 const userRankContainer = document.querySelector('.header');
 const userRank = getUserRankHtml();
@@ -54,20 +46,29 @@ insertHtmlElement(filmListsContainer, mostCommentedListHtml, 'beforeend');
 const filmsContainer = document.querySelectorAll('.films-list__container')[0];
 const topRatedContainer = document.querySelectorAll('.films-list__container')[1];
 const mostCommentedContainer = document.querySelectorAll('.films-list__container')[2];
-const filmCard = getFilmCardHtml();
 
-insertHtmlElement(filmsContainer, filmCard, 'beforeend', NUMBER_OF_LIST_CARDS);
+//todo: Вынести в отдельный модуль вставку данных уже после применения фильтров
+for (let i = 0; i < NUMBER_OF_LIST_CARDS; i++) {
+  const filmCard = getFilmCardHtml(moviesData[i]);
+  insertHtmlElement(filmsContainer, filmCard, 'beforeend');
+}
+
 const showMoreContainer = document.querySelector('.films-list');
 const showMoreButton = getMoreHtml();
 
 insertHtmlElement(showMoreContainer, showMoreButton, 'beforeend');
 
-insertHtmlElement(topRatedContainer, filmCard, 'beforeend', NUMBER_OF_EXTRA_CARDS);
-insertHtmlElement(mostCommentedContainer, filmCard, 'beforeend', NUMBER_OF_EXTRA_CARDS);
+//todo: Вынести в отдельный модуль вставку данных после применения соотв. фильтров
+for (let i = 0; i < NUMBER_OF_EXTRA_CARDS; i++) {
+  const filmCard = getFilmCardHtml(moviesData[i]);
+  insertHtmlElement(topRatedContainer, filmCard, 'beforeend');
+}
+for (let i = 0; i < NUMBER_OF_EXTRA_CARDS; i++) {
+  const filmCard = getFilmCardHtml(moviesData[i]);
+  insertHtmlElement(mostCommentedContainer, filmCard, 'beforeend');
+}
 
-const popupContainer = document.querySelector('.footer');
-const filmPopup = getFilmPopupHtml();
+setOpenPopupHandler();
 
-insertHtmlElement(popupContainer, filmPopup, 'afterend');
+console.log(moviesData);
 
-console.log(getRandomFilmData(20));

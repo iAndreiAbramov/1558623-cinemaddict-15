@@ -1,3 +1,5 @@
+import {moviesData} from '../mock-data/film-data';
+
 export const getNumberOfFilmsHtml = () => `
-    <p>130 291 movies inside</p>
+    <p>${moviesData.length} movies inside</p>
   `;
