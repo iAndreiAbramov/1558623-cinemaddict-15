@@ -50,7 +50,7 @@ const getRandomFilmData = (numberOfMovies) => {
         writers: getRandomSubArray(Writers).join(', '),
         actors: getRandomSubArray(Actors).join(', '),
         release: {
-          date: getRandomDate('DD MMMM YYYY'),
+          date: getRandomDate(),
           releaseCountry: getRandomItem(ReleaseCountries),
         },
         runtime: transformDuration(getRandomInteger(MIN_RUN_TIME, MAX_RUN_TIME)),

@@ -1,4 +1,5 @@
 import {EmotionsImages} from '../mock-data/data-sets';
+import {reformatDateForComments} from '../services/utils';
 
 export const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
@@ -11,7 +12,7 @@ export const getCommentItemHtml = (commentDataItem) => {
         <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
-          <span class="film-details__comment-day">${date}</span>
+          <span class="film-details__comment-day">${reformatDateForComments(date)}</span>
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>

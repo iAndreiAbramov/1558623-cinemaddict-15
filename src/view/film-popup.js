@@ -1,5 +1,8 @@
+import {reformatDate} from '../services/utils';
+
 export const getFilmPopupHtml = (filmData) => {
   const {comments, filmInfo, userDetails} = filmData;
+  const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
   return `
     <section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -39,7 +42,7 @@ export const getFilmPopupHtml = (filmData) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${filmInfo.release.date}</td>
+                <td class="film-details__cell">${reformatDate(filmInfo.release.date,'DD MMMM YYYY')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
@@ -50,7 +53,7 @@ export const getFilmPopupHtml = (filmData) => {
                 <td class="film-details__cell">${filmInfo.release.releaseCountry}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${genres}</td>
                 <td class="film-details__cell">
                   <span class="film-details__genre">${filmInfo.genre}</span>
               </tr>

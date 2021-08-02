@@ -1,4 +1,4 @@
-import {getShortDescription} from '../services/utils';
+import {getShortDescription, reformatDate} from '../services/utils';
 
 const MAX_DESCRIPTION_LENGTH = 140;
 
@@ -9,7 +9,7 @@ export const getFilmCardHtml = (filmData) => {
       <h3 class="film-card__title">${filmInfo.title}</h3>
       <p class="film-card__rating">${filmInfo.totalRating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${filmInfo.release.date.slice(-4)}</span>
+        <span class="film-card__year">${reformatDate(filmInfo.release.date, 'YYYY').slice(-4)}</span>
         <span class="film-card__duration">${filmInfo.runtime}</span>
         <span class="film-card__genre">${filmInfo.genre}</span>
       </p>
