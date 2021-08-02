@@ -2,7 +2,7 @@ import {getFilmCardHtml} from '../view/film-card';
 import {insertHtmlElement} from '../services/utils';
 import {moviesData} from '../mock-data/movies-data';
 
-const data = moviesData;
+const data = [...moviesData];
 const DEFAULT_CARDS_NUMBER = 5;
 let shownCardsNumber = 0;
 
