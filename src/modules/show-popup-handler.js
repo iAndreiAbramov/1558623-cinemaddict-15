@@ -9,9 +9,9 @@ export const setOpenPopupHandler = (targetSelector) => {
 
   cardsContainers.forEach((cardsContainer) => {
     cardsContainer.addEventListener('click', (clickEvt) => {
-      const popup = document.querySelector('.film-details');
-      if (popup) {
-        popup.remove();
+      const activePopup = document.querySelector('.film-details');
+      if (activePopup) {
+        activePopup.remove();
       }
       //todo: Реализовать подстановку данных того фильма, на который кликнули, вместо случайного
       const movieItem = moviesData[getRandomInteger(0, moviesData.length - 1)];
