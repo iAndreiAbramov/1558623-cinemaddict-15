@@ -1,8 +1,8 @@
-import {getShortDescription, reformatDate} from '../services/utils';
+import {createElement, getShortDescription, reformatDate} from '../services/utils';
 
 const MAX_DESCRIPTION_LENGTH = 140;
 
-export const getFilmCardHtml = (filmData) => {
+const getFilmCardHtml = (filmData) => {
   const {comments, filmInfo, userDetails} = filmData;
   return `
     <article class="film-card">
@@ -42,3 +42,25 @@ export const getFilmCardHtml = (filmData) => {
     </article>
   `;
 };
+
+export default class FilmCard {
+  constructor(filmData) {
+    this._element = null;
+    this._filmData = filmData;
+  }
+
+  getTemplate() {
+    return getFilmCardHtml(this._filmData);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  deleteElement() {
+    this._element = null;
+  }
+}

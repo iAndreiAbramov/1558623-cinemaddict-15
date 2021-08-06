@@ -1,10 +1,10 @@
-import {getFilmPopupHtml} from '../view/film-popup';
-import {getRandomInteger, insertHtmlElement, isEscEvent} from '../services/utils';
+import {getRandomInteger, insertDOMElement, isEscEvent, Positions} from '../services/utils';
 import {moviesData} from '../mock-data/movies-data';
-import {getCommentItemHtml} from '../view/popup-comment';
+import CommentItem from '../view/popup-comment';
+import FilmPopup from '../view/film-popup';
 
-export const setOpenPopupHandler = (targetSelector) => {
-  const cardsContainers = document.querySelectorAll(targetSelector);
+export const setOpenPopupHandler = () => {
+  const cardsContainers = document.querySelectorAll('.films-list__container');
   const popupContainer = document.querySelector('.footer');
 
   cardsContainers.forEach((cardsContainer) => {
@@ -16,17 +16,19 @@ export const setOpenPopupHandler = (targetSelector) => {
       //todo: Реализовать подстановку данных того фильма, на который кликнули, вместо случайного
       const movieItem = moviesData[getRandomInteger(0, moviesData.length - 1)];
       const {comments} = movieItem;
-      const filmPopup = getFilmPopupHtml(movieItem);
+      const filmPopup = new FilmPopup(movieItem).getElement();
+
       if (
         clickEvt.target.classList.contains('film-card__poster') ||
         clickEvt.target.classList.contains('film-card__title') ||
         clickEvt.target.classList.contains('film-card__comments')
       ) {
-        insertHtmlElement(popupContainer, filmPopup, 'afterend');
+        insertDOMElement(popupContainer, filmPopup, Positions.AFTEREND);
         document.body.style.overflow = 'hidden';
         const popup = document.querySelector('.film-details');
         const closeButton = popup.querySelector('.film-details__close-btn');
         const commentsContainer = popup.querySelector('.film-details__comments-list');
+
         const closePopupByEsc = (keyDownEvt) => {
           if (isEscEvent(keyDownEvt)) {
             popup.remove();
@@ -34,6 +36,7 @@ export const setOpenPopupHandler = (targetSelector) => {
             document.body.style.overflow = '';
           }
         };
+
         const closePopupByClick = () => {
           popup.remove();
           document.removeEventListener('keydown', closePopupByEsc);
@@ -44,8 +47,8 @@ export const setOpenPopupHandler = (targetSelector) => {
         closeButton.addEventListener('click', closePopupByClick);
 
         comments.forEach((commentItem) => {
-          const comment = getCommentItemHtml(commentItem);
-          insertHtmlElement(commentsContainer, comment, 'beforeend');
+          const comment = new CommentItem(commentItem).getElement();
+          insertDOMElement(commentsContainer, comment, Positions.BEFOREEND);
         });
       }
     });

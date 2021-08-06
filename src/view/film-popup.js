@@ -1,6 +1,6 @@
-import {reformatDate} from '../services/utils';
+import {createElement, reformatDate} from '../services/utils';
 
-export const getFilmPopupHtml = (filmData) => {
+const getFilmPopupHtml = (filmData) => {
   const {comments, filmInfo, userDetails} = filmData;
   const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
   return `
@@ -140,3 +140,25 @@ export const getFilmPopupHtml = (filmData) => {
   </section>
   `;
 };
+
+export default class FilmPopup {
+  constructor(filmData) {
+    this._element = null;
+    this._filmData = filmData;
+  }
+
+  getTemplate() {
+    return getFilmPopupHtml(this._filmData);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  deleteElement() {
+    this._element = null;
+  }
+}

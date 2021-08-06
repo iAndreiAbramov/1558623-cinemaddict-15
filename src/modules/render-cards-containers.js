@@ -1,26 +1,25 @@
-import {getListsContainerHtml} from '../view/lists-container';
-import {getCardsContainerHtml} from '../view/cards-container';
-import {getExtraContainerHtml} from '../view/extra-container';
-import {insertHtmlElement} from '../services/utils';
-import {getMoreHtml} from '../view/more-button';
+import ListsContainer from '../view/lists-container';
+import CardsContainer from '../view/cards-container';
+import ExtraContainer from '../view/extra-container';
+import {insertDOMElement, Positions} from '../services/utils';
+import MoreButton from '../view/more-button';
 
 export const renderCardsContainers = () => {
   const mainContainer = document.querySelector('.main');
-  const listsContainerHtml = getListsContainerHtml();
-  const filmsListHtml = getCardsContainerHtml('All movies. Upcoming');
-  const topRatedListHtml = getExtraContainerHtml('Top rated');
-  const mostCommentedListHtml = getExtraContainerHtml('Most commented');
+  const listsContainerHtml = new ListsContainer().getElement();
+  const listContainer = new CardsContainer('All movies. Upcoming').getElement();
+  const topRatedContainer = new ExtraContainer('Top rated').getElement();
+  const mostCommentedContainer = new ExtraContainer('Most commented').getElement();
 
-  insertHtmlElement(mainContainer, listsContainerHtml, 'beforeend');
+  insertDOMElement(mainContainer, listsContainerHtml, Positions.BEFOREEND);
   const filmListsContainer = document.querySelector('.films');
 
-  insertHtmlElement(filmListsContainer, filmsListHtml, 'afterbegin');
-  insertHtmlElement(filmListsContainer, topRatedListHtml, 'beforeend');
-  insertHtmlElement(filmListsContainer, mostCommentedListHtml, 'beforeend');
+  insertDOMElement(filmListsContainer, listContainer, Positions.AFTERBEGIN);
+  insertDOMElement(filmListsContainer, topRatedContainer, Positions.BEFOREEND);
+  insertDOMElement(filmListsContainer, mostCommentedContainer, Positions.BEFOREEND);
 
   const showMoreContainer = document.querySelector('.films-list');
-  const showMoreButton = getMoreHtml();
+  const showMoreButton = new MoreButton().getElement();
 
-  insertHtmlElement(showMoreContainer, showMoreButton, 'beforeend');
-
+  insertDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
 };
