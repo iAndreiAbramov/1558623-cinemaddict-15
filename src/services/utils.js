@@ -52,10 +52,34 @@ export const transformDuration = (durationInMinutes) => {
   return `${hours}h ${minutes}m`;
 };
 
+export const Positions = {
+  BEFOREBEGIN: 'beforebegin',
+  AFTERBEGIN: 'afterbegin',
+  BEFOREEND: 'beforeend',
+  AFTEREND: 'afterend',
+};
+
+//todo: Удалить, если больше не понадобится
 export const insertHtmlElement = (parent, htmlElement, position) => {
   if (parent) {
     parent.insertAdjacentHTML(position, htmlElement);
   }
+};
+
+export const insertDOMElement = (parent, DOMElement, position) => {
+  if (parent) {
+    parent.insertAdjacentElement(position, DOMElement);
+  }
+};
+
+export const createElement = (template) => {
+  const element = document.createElement('div');
+  element.innerHTML = template;
+  let counter = 0;
+  while (element.nodeName === '#text') {
+    counter++;
+  }
+  return element.children[counter];
 };
 
 export const isEscEvent = (evt) => evt.key === 'Escape' || evt.key === 'Esc';

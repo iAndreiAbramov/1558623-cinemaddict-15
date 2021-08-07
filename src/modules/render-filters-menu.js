@@ -1,8 +1,8 @@
-import {getFiltersMenuHtml} from '../view/filters-menu';
-import {insertHtmlElement} from '../services/utils';
+import FiltersMenu from '../view/filters-menu';
+import {insertDOMElement, Positions} from '../services/utils';
 
-export const renderFiltersMenu = () => {
+export const renderFiltersMenu = (data) => {
   const mainContainer = document.querySelector('.main');
-  const filtersMenu = getFiltersMenuHtml();
-  insertHtmlElement(mainContainer, filtersMenu, 'afterbegin');
+  const filtersMenu = new FiltersMenu(data).getElement();
+  insertDOMElement(mainContainer, filtersMenu, Positions.AFTERBEGIN);
 };

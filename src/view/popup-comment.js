@@ -1,7 +1,7 @@
 import {EmotionsImages} from '../mock-data/data-sets';
-import {reformatDateForComments} from '../services/utils';
+import {createElement, reformatDateForComments} from '../services/utils';
 
-export const getCommentItemHtml = (commentDataItem) => {
+const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
   return `
     <li class="film-details__comment">
@@ -19,3 +19,25 @@ export const getCommentItemHtml = (commentDataItem) => {
     </li>
   `;
 };
+
+export default class CommentItem {
+  constructor(commentDataItem) {
+    this._element = null;
+    this._commentdataItem = commentDataItem;
+  }
+
+  getTemplate() {
+    return getCommentItemHtml(this._commentdataItem);
+  }
+
+  getElement()  {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  deleteElement() {
+    this._element = null;
+  }
+}

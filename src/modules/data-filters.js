@@ -1,6 +1,10 @@
-export const getWatchListMovies = (filmsData) => {
+import {moviesData} from '../mock-data/movies-data';
+
+export const getAllMovies = () => [...moviesData];
+
+export const getWatchListMovies = () => {
   const result = [];
-  filmsData.forEach((film) => {
+  moviesData.forEach((film) => {
     const {userDetails} = film;
     if (userDetails.watchlist) {
       result.push(film);
@@ -9,9 +13,9 @@ export const getWatchListMovies = (filmsData) => {
   return result;
 };
 
-export const getWatchedMovies = (filmsData) => {
+export const getWatchedMovies = () => {
   const result = [];
-  filmsData.forEach((film) => {
+  moviesData.forEach((film) => {
     const {userDetails} = film;
     if (userDetails.alreadyWatched) {
       result.push(film);
@@ -20,9 +24,9 @@ export const getWatchedMovies = (filmsData) => {
   return result;
 };
 
-export const getFavoriteMovies = (filmsData) => {
+export const getFavoriteMovies = () => {
   const result = [];
-  filmsData.forEach((film) => {
+  moviesData.forEach((film) => {
     const {userDetails} = film;
     if (userDetails.favorite) {
       result.push(film);

@@ -1,8 +1,8 @@
-import {getUserRankHtml} from '../view/user-rank';
-import {insertHtmlElement} from '../services/utils';
+import {insertDOMElement, Positions} from '../services/utils';
+import UserRankView from '../view/user-rank';
 
-export const renderUserRank = () => {
+export const renderUserRank = (data) => {
   const userRankContainer = document.querySelector('.header');
-  const userRank = getUserRankHtml();
-  insertHtmlElement(userRankContainer, userRank, 'beforeend');
+  const userRank = new UserRankView(data).getElement();
+  insertDOMElement(userRankContainer, userRank, Positions.BEFOREEND);
 };

@@ -1,8 +1,8 @@
-import {renderFilmsList} from './render-films-list';
+import {showMoreCards} from './show-more-cards';
 
 export const setMoreButtonHandler = () => {
   const showMoreButton = document.querySelector('.films-list__show-more');
   if (showMoreButton) {
-    showMoreButton.addEventListener('click', renderFilmsList);
+    showMoreButton.addEventListener('click', showMoreCards);
   }
 };

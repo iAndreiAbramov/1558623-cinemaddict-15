@@ -1,8 +1,8 @@
-import {getNumberOfFilmsHtml} from '../view/number-of-films';
-import {insertHtmlElement} from '../services/utils';
+import NumberOfFilms from '../view/number-of-films';
+import {insertDOMElement, Positions} from '../services/utils';
 
-export const renderFilmsNumber = () => {
+export const renderFilmsNumber = (data) => {
   const numberOfFilmsContainer = document.querySelector('.footer__statistics');
-  const numberOfFilms = getNumberOfFilmsHtml();
-  insertHtmlElement(numberOfFilmsContainer, numberOfFilms, 'beforeend');
+  const numberOfFilms = new NumberOfFilms(data).getElement();
+  insertDOMElement(numberOfFilmsContainer, numberOfFilms, Positions.BEFOREEND);
 };
