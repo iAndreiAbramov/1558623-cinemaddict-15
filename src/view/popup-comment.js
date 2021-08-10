@@ -1,5 +1,5 @@
 import {EmotionsImages} from '../mock-data/data-sets';
-import {reformatDateForComments} from '../services/utils';
+import {reformatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getCommentItemHtml = (commentDataItem) => {

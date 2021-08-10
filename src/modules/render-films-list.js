@@ -1,6 +1,6 @@
 import FilmCard from '../view/film-card';
-import {insertDOMElement, Positions} from '../services/utils';
 import MessageForEmpty from '../view/cards-container-empty';
+import {renderDOMElement, Positions} from '../utils/render';
 
 const DEFAULT_CARDS_NUMBER = 5;
 
@@ -23,12 +23,12 @@ export const renderFilmsList = (data) => {
   const filmsContainer = document.querySelectorAll('.films-list__container')[0];
   if (data.length === 0) {
     const message = getMessageForEmpty(getMessageOption());
-    const messageElement = new MessageForEmpty(message).getElement();
-    insertDOMElement(filmsContainer, messageElement, Positions.AFTERBEGIN);
+    const messageElement = new MessageForEmpty(message);
+    renderDOMElement(filmsContainer, messageElement, Positions.AFTERBEGIN);
   } else {
     for (let i = 0; i < DEFAULT_CARDS_NUMBER; i++) {
-      const filmCard = new FilmCard(data[i]).getElement();
-      insertDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
+      const filmCard = new FilmCard(data[i]);
+      renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
     }
   }
 };

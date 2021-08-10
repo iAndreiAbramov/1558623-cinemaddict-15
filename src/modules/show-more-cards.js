@@ -1,6 +1,6 @@
 import {getAllMovies} from './data-filters';
 import FilmCard from '../view/film-card';
-import {insertDOMElement, Positions} from '../services/utils';
+import {renderDOMElement, Positions} from '../utils/render';
 
 const data = getAllMovies();
 const CARDS_COUNT_STEP = 5;
@@ -14,8 +14,8 @@ export const showMoreCards = () => {
   cardsToShow = Math.min(cardsToShow, data.length);
 
   while (shownCardsNumber < cardsToShow) {
-    const filmCard = new FilmCard(data[shownCardsNumber]).getElement();
-    insertDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
+    const filmCard = new FilmCard(data[shownCardsNumber]);
+    renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
     shownCardsNumber++;
   }
   if (shownCardsNumber === data.length) {

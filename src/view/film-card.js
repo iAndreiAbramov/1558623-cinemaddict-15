@@ -1,5 +1,6 @@
-import {getShortDescription, reformatDate} from '../services/utils';
+import {reformatDate} from '../utils/date';
 import AbstractView from './abstract-view';
+import {getShortDescription} from '../utils/common';
 
 const MAX_DESCRIPTION_LENGTH = 140;
 

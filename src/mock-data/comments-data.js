@@ -1,5 +1,6 @@
-import {getRandomDate, getRandomInteger, getRandomItem} from '../services/utils';
+import {getRandomDate} from '../utils/date';
 import {CommentAuthors, Comments, Emotions} from './data-sets';
+import {getRandomInteger, getRandomItem} from '../utils/common';
 
 const MIN_ID = 1;
 const MAX_ID = 10000;

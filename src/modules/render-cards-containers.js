@@ -1,25 +1,25 @@
 import ListsContainer from '../view/lists-container';
 import CardsContainer from '../view/cards-container';
 import ExtraContainer from '../view/extra-container';
-import {insertDOMElement, Positions} from '../services/utils';
 import MoreButton from '../view/more-button';
+import {renderDOMElement, Positions} from '../utils/render';
 
 export const renderCardsContainers = () => {
   const mainContainer = document.querySelector('.main');
-  const listsContainerHtml = new ListsContainer().getElement();
-  const listContainer = new CardsContainer('All movies. Upcoming').getElement();
-  const topRatedContainer = new ExtraContainer('Top rated').getElement();
-  const mostCommentedContainer = new ExtraContainer('Most commented').getElement();
+  const listsContainerHtml = new ListsContainer();
+  const listContainer = new CardsContainer('All movies. Upcoming');
+  const topRatedContainer = new ExtraContainer('Top rated');
+  const mostCommentedContainer = new ExtraContainer('Most commented');
 
-  insertDOMElement(mainContainer, listsContainerHtml, Positions.BEFOREEND);
+  renderDOMElement(mainContainer, listsContainerHtml, Positions.BEFOREEND);
   const filmListsContainer = document.querySelector('.films');
 
-  insertDOMElement(filmListsContainer, listContainer, Positions.AFTERBEGIN);
-  insertDOMElement(filmListsContainer, topRatedContainer, Positions.BEFOREEND);
-  insertDOMElement(filmListsContainer, mostCommentedContainer, Positions.BEFOREEND);
+  renderDOMElement(filmListsContainer, listContainer, Positions.AFTERBEGIN);
+  renderDOMElement(filmListsContainer, topRatedContainer, Positions.BEFOREEND);
+  renderDOMElement(filmListsContainer, mostCommentedContainer, Positions.BEFOREEND);
 
   const showMoreContainer = document.querySelector('.films-list');
-  const showMoreButton = new MoreButton().getElement();
+  const showMoreButton = new MoreButton();
 
-  insertDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
+  renderDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
 };

@@ -1,4 +1,4 @@
-import {reformatDate} from '../services/utils';
+import {reformatDate} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getFilmPopupHtml = (filmData) => {

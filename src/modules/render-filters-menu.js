@@ -1,8 +1,8 @@
 import FiltersMenu from '../view/filters-menu';
-import {insertDOMElement, Positions} from '../services/utils';
+import {renderDOMElement, Positions} from '../utils/render';
 
 export const renderFiltersMenu = (data) => {
   const mainContainer = document.querySelector('.main');
-  const filtersMenu = new FiltersMenu(data).getElement();
-  insertDOMElement(mainContainer, filtersMenu, Positions.AFTERBEGIN);
+  const filtersMenu = new FiltersMenu(data);
+  renderDOMElement(mainContainer, filtersMenu, Positions.AFTERBEGIN);
 };
