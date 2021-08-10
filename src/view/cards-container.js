@@ -11,9 +11,22 @@ export default class CardsContainer extends AbstractView {
   constructor(title) {
     super();
     this._title = title;
+    this._clickCallback = this._clickCallback.bind(this);
   }
 
   getTemplate() {
     return getCardsContainerHtml(this._title);
+  }
+
+  _clickCallback(evt) {
+    evt.preventDefault();
+    this._callback.click();
+  }
+
+  setClickCallback(callback) {
+    this._callback.click = callback;
+    if (this.getElement()) {
+      this.getElement().addEventListener('click', this._clickCallback);
+    }
   }
 }

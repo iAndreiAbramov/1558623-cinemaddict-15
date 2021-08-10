@@ -4,7 +4,7 @@ import FilmPopup from '../view/film-popup';
 import {renderDOMElement, Positions} from '../utils/render';
 import {getRandomInteger, isEscEvent} from '../utils/common';
 
-export const setOpenPopupHandler = () => {
+export const showPopup = () => {
   const cardsContainers = document.querySelectorAll('.films-list__container');
   const popupContainer = document.querySelector('.footer');
 

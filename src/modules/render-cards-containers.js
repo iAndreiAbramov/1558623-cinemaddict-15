@@ -3,11 +3,14 @@ import CardsContainer from '../view/cards-container';
 import ExtraContainer from '../view/extra-container';
 import MoreButton from '../view/more-button';
 import {renderDOMElement, Positions} from '../utils/render';
+import {showMoreCards} from './show-more-cards';
+import {showPopup} from './show-popup';
 
 export const renderCardsContainers = () => {
   const mainContainer = document.querySelector('.main');
   const listsContainerHtml = new ListsContainer();
   const listContainer = new CardsContainer('All movies. Upcoming');
+  listContainer.setClickCallback(showPopup);
   const topRatedContainer = new ExtraContainer('Top rated');
   const mostCommentedContainer = new ExtraContainer('Most commented');
 
@@ -20,6 +23,7 @@ export const renderCardsContainers = () => {
 
   const showMoreContainer = document.querySelector('.films-list');
   const showMoreButton = new MoreButton();
+  showMoreButton.setClickHandler(showMoreCards);
 
   renderDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
 };
