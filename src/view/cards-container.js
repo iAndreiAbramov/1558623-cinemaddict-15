@@ -1,4 +1,4 @@
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getCardsContainerHtml = (title) => `
   <section class="films-list">
@@ -7,24 +7,13 @@ const getCardsContainerHtml = (title) => `
   </section>
 `;
 
-export default class CardsContainer {
+export default class CardsContainer extends AbstractView {
   constructor(title) {
-    this._element = null;
+    super();
     this._title = title;
   }
 
   getTemplate() {
-    return createElement(getCardsContainerHtml(this._title));
-  }
-
-  getElement()  {
-    if (!this._element) {
-      this._element = this.getTemplate();
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
+    return getCardsContainerHtml(this._title);
   }
 }

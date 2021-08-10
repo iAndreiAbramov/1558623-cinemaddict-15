@@ -1,4 +1,5 @@
-import {createElement, reformatDate} from '../services/utils';
+import {reformatDate} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getFilmPopupHtml = (filmData) => {
   const {comments, filmInfo, userDetails} = filmData;
@@ -141,24 +142,13 @@ const getFilmPopupHtml = (filmData) => {
   `;
 };
 
-export default class FilmPopup {
+export default class FilmPopup extends AbstractView {
   constructor(filmData) {
-    this._element = null;
+    super();
     this._filmData = filmData;
   }
 
   getTemplate() {
     return getFilmPopupHtml(this._filmData);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

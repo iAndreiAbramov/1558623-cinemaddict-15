@@ -1,5 +1,5 @@
 import {getWatchedMovies} from '../modules/data-filters';
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const UserRanks = {
   0: '',
@@ -28,24 +28,13 @@ const createUserRankHtml = (data) => {
   `;
 };
 
-export default class UserRank {
+export default class UserRank extends AbstractView {
   constructor(data) {
-    this._element = null;
+    super();
     this._data = data;
   }
 
   getTemplate() {
     return createUserRankHtml(this._data);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-      return this._element;
-    }
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

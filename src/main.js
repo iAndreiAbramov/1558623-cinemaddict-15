@@ -1,4 +1,3 @@
-
 import {setOpenPopupHandler} from './modules/show-popup-handler';
 import {setMoreButtonHandler} from './modules/more-button-handler';
 import {renderFilmsNumber} from './modules/render-films-number';

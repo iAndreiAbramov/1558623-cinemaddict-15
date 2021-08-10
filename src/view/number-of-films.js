@@ -1,27 +1,16 @@
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getNumberOfFilmsHtml = (data) => `
     <p>${data.length} movies inside</p>
   `;
 
-export default class NumberOfFilms {
+export default class NumberOfFilms extends AbstractView {
   constructor(data) {
-    this._element = null;
+    super();
     this._data = data;
   }
 
   getTemplate() {
     return getNumberOfFilmsHtml(this._data);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }
