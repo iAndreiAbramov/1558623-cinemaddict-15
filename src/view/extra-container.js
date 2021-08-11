@@ -1,4 +1,4 @@
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getExtraContainerHtml = (title) => `
   <section class="films-list films-list--extra">
@@ -7,24 +7,13 @@ const getExtraContainerHtml = (title) => `
     </section>
 `;
 
-export default class ExtraContainer {
+export default class ExtraContainer extends AbstractView {
   constructor(title) {
-    this._element = null;
+    super();
     this._title = title;
   }
 
   getTemplate() {
-    return createElement(getExtraContainerHtml(this._title));
-  }
-
-  getElement()  {
-    if (!this._element) {
-      this._element = this.getTemplate();
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
+    return getExtraContainerHtml(this._title);
   }
 }

@@ -1,5 +1,6 @@
 import {EmotionsImages} from '../mock-data/data-sets';
-import {createElement, reformatDateForComments} from '../services/utils';
+import {reformatDateForComments} from '../utils/date';
+import AbstractView from './abstract-view';
 
 const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
@@ -20,24 +21,13 @@ const getCommentItemHtml = (commentDataItem) => {
   `;
 };
 
-export default class CommentItem {
+export default class CommentItem extends AbstractView {
   constructor(commentDataItem) {
-    this._element = null;
+    super();
     this._commentdataItem = commentDataItem;
   }
 
   getTemplate() {
     return getCommentItemHtml(this._commentdataItem);
-  }
-
-  getElement()  {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

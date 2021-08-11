@@ -1,4 +1,6 @@
-import {createElement, getShortDescription, reformatDate} from '../services/utils';
+import {reformatDate} from '../utils/date';
+import AbstractView from './abstract-view';
+import {getShortDescription} from '../utils/common';
 
 const MAX_DESCRIPTION_LENGTH = 140;
 
@@ -43,24 +45,13 @@ const getFilmCardHtml = (filmData) => {
   `;
 };
 
-export default class FilmCard {
+export default class FilmCard extends AbstractView {
   constructor(filmData) {
-    this._element = null;
+    super();
     this._filmData = filmData;
   }
 
   getTemplate() {
     return getFilmCardHtml(this._filmData);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

@@ -1,5 +1,5 @@
 import {getFavoriteMovies, getWatchedMovies, getWatchListMovies} from '../modules/data-filters';
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getFiltersMenuHtml = (data) => `
   <nav class="main-navigation">
@@ -13,24 +13,13 @@ const getFiltersMenuHtml = (data) => `
   </nav>
 `;
 
-export default class FiltersMenu {
+export default class FiltersMenu extends AbstractView {
   constructor(data) {
-    this._element = null;
+    super();
     this._data = data;
   }
 
   getTemplate() {
     return getFiltersMenuHtml(this._data);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

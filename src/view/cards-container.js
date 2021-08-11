@@ -1,4 +1,4 @@
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getCardsContainerHtml = (title) => `
   <section class="films-list">
@@ -7,24 +7,26 @@ const getCardsContainerHtml = (title) => `
   </section>
 `;
 
-export default class CardsContainer {
+export default class CardsContainer extends AbstractView {
   constructor(title) {
-    this._element = null;
+    super();
     this._title = title;
+    this._clickCallback = this._clickCallback.bind(this);
   }
 
   getTemplate() {
-    return createElement(getCardsContainerHtml(this._title));
+    return getCardsContainerHtml(this._title);
   }
 
-  getElement()  {
-    if (!this._element) {
-      this._element = this.getTemplate();
+  _clickCallback(evt) {
+    evt.preventDefault();
+    this._callback.click();
+  }
+
+  setClickCallback(callback) {
+    this._callback.click = callback;
+    if (this.getElement()) {
+      this.getElement().addEventListener('click', this._clickCallback);
     }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
   }
 }

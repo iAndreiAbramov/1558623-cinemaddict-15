@@ -1,14 +1,8 @@
 import {getRandomCommentsData} from './comments-data';
 import {
-  getRandomBoolean,
   getRandomDate,
-  getRandomDescription,
-  getRandomFloat,
-  getRandomInteger,
-  getRandomItem,
-  getRandomSubArray,
   transformDuration
-} from '../services/utils';
+} from '../utils/date';
 import {
   Actors,
   Descriptions,
@@ -19,6 +13,14 @@ import {
   ReleaseCountries,
   Writers
 } from './data-sets';
+import {
+  getRandomBoolean,
+  getRandomDescription,
+  getRandomFloat,
+  getRandomInteger,
+  getRandomItem,
+  getRandomSubArray
+} from '../utils/common';
 
 const MIN_COMMENTS_NUMBER = 0;
 const MAX_COMMENTS_NUMBER = 5;
@@ -32,7 +34,7 @@ const MAX_AGE_RATING = 100;
 const MIN_RUN_TIME = 60;
 const MAX_RUN_TIME = 240;
 
-const NUMBER_OF_MOVIES = 0;
+const NUMBER_OF_MOVIES = 18;
 
 const getRandomFilmData = (numberOfMovies) => {
   const movies = [];

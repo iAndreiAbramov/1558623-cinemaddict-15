@@ -1,26 +1,15 @@
-import {createElement} from '../services/utils';
+import AbstractView from './abstract-view';
 
 const getListsContainerHtml = () => `
     <section class="films"></section>
 `;
 
-export default class ListsContainer {
+export default class ListsContainer extends AbstractView {
   constructor() {
-    this._element = null;
+    super();
   }
 
   getTemplate() {
-    return createElement(getListsContainerHtml());
-  }
-
-  getElement()  {
-    if (!this._element) {
-      this._element = this.getTemplate();
-    }
-    return this._element;
-  }
-
-  deleteElement() {
-    this._element = null;
+    return getListsContainerHtml();
   }
 }

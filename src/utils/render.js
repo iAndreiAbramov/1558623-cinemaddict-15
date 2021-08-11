@@ -1,0 +1,32 @@
+import AbstractView from '../view/abstract-view';
+
+export const Positions = {
+  BEFOREBEGIN: 'beforebegin',
+  AFTERBEGIN: 'afterbegin',
+  BEFOREEND: 'beforeend',
+  AFTEREND: 'afterend',
+};
+
+export const createElement = (template) => {
+  const element = document.createElement('div');
+  element.innerHTML = template;
+  let counter = 0;
+  while (element.nodeName === '#text') {
+    counter++;
+  }
+  return element.children[counter];
+};
+
+export const renderDOMElement = (parent, DOMElement, position) => {
+  if (parent instanceof AbstractView) {
+    parent = parent.getElement();
+  }
+
+  if (DOMElement instanceof AbstractView) {
+    DOMElement = DOMElement.getElement();
+  }
+
+  if (parent) {
+    parent.insertAdjacentElement(position, DOMElement);
+  }
+};
