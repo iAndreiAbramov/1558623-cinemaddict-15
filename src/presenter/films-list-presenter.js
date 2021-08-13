@@ -7,11 +7,14 @@ import {Positions, renderDOMElement} from '../utils/render';
 import UserRankView from '../view/user-rank';
 import FiltersMenu from '../view/filters-menu';
 import SortPanel from '../view/sort-panel';
-import {showPopup} from '../modules/show-popup';
-import MoreButton from '../view/more-button';
 import FilmCard from '../view/film-card';
 import {sortByCommentsNumber, sortByRating} from '../modules/data-sort';
 import {getAllMovies} from '../modules/data-filters';
+import {moviesData} from '../mock-data/movies-data';
+import {getRandomInteger, isEscEvent} from '../utils/common';
+import FilmPopup from '../view/film-popup';
+import CommentItem from '../view/popup-comment';
+import MoreButton from '../view/more-button';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
@@ -24,7 +27,8 @@ export default class FilmsListPresenter {
     this._mostCommentedContainer = new ExtraContainer('Most commented');
     this._initialData = getAllMovies();
     this._mainContainer = document.querySelector('.main');
-    this._initialCardsNumber = DEFAULT_CARDS_NUMBER;
+    this._defaultCardsNumber = DEFAULT_CARDS_NUMBER;
+    this._cardsCountStep = CARDS_COUNT_STEP;
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
   }
 
@@ -67,7 +71,7 @@ export default class FilmsListPresenter {
 
     let shownCardsNumber = filmsContainer.children.length;
 
-    const cardsToShow = Math.min(shownCardsNumber + CARDS_COUNT_STEP, this._initialData.length);
+    const cardsToShow = Math.min(shownCardsNumber + this._cardsCountStep, this._initialData.length);
 
     while (shownCardsNumber < cardsToShow) {
       const filmCard = new FilmCard(this._initialData[shownCardsNumber]);
@@ -79,8 +83,60 @@ export default class FilmsListPresenter {
     }
   }
 
+  _showPopup() {
+    const cardsContainers = document.querySelectorAll('.films-list__container');
+    const popupContainer = document.querySelector('.footer');
+
+    cardsContainers.forEach((cardsContainer) => {
+      cardsContainer.addEventListener('click', (clickEvt) => {
+        const activePopup = document.querySelector('.film-details');
+        if (activePopup) {
+          activePopup.remove();
+        }
+        //todo: Реализовать подстановку данных того фильма, на который кликнули, вместо случайного
+        const movieItem = moviesData[getRandomInteger(0, moviesData.length - 1)];
+        const {comments} = movieItem;
+        const filmPopup = new FilmPopup(movieItem);
+
+        if (
+          clickEvt.target.classList.contains('film-card__poster') ||
+          clickEvt.target.classList.contains('film-card__title') ||
+          clickEvt.target.classList.contains('film-card__comments')
+        ) {
+          renderDOMElement(popupContainer, filmPopup, Positions.AFTEREND);
+          document.body.style.overflow = 'hidden';
+          const popup = document.querySelector('.film-details');
+          const closeButton = popup.querySelector('.film-details__close-btn');
+          const commentsContainer = popup.querySelector('.film-details__comments-list');
+
+          const closePopupByEsc = (keyDownEvt) => {
+            if (isEscEvent(keyDownEvt)) {
+              popup.remove();
+              document.removeEventListener('keydown', closePopupByEsc);
+              document.body.style.overflow = '';
+            }
+          };
+
+          const closePopupByClick = () => {
+            popup.remove();
+            document.removeEventListener('keydown', closePopupByEsc);
+            document.body.style.overflow = '';
+          };
+
+          document.addEventListener('keydown', closePopupByEsc);
+          closeButton.addEventListener('click', closePopupByClick);
+
+          comments.forEach((commentItem) => {
+            const comment = new CommentItem(commentItem).getElement();
+            renderDOMElement(commentsContainer, comment, Positions.BEFOREEND);
+          });
+        }
+      });
+    });
+  }
+
   _renderCardsContainers() {
-    this._cardsContainer.setClickCallback(showPopup);
+    this._cardsContainer.setClickCallback(this._showPopup);
 
     renderDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
 
@@ -119,7 +175,7 @@ export default class FilmsListPresenter {
       const messageElement = new MessageForEmptyList(message);
       renderDOMElement(filmsContainer, messageElement, Positions.AFTERBEGIN);
     } else {
-      for (let i = 0; i < this._initialCardsNumber; i++) {
+      for (let i = 0; i < this._defaultCardsNumber; i++) {
         const filmCard = new FilmCard(data[i]);
         renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
       }
