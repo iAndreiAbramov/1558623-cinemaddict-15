@@ -4,7 +4,7 @@ const getMessageForEmptyHtml = (title) => `
       <h2 class="films-list__title">${title}</h2>
 `;
 
-export default class MessageForEmpty extends AbstractView {
+export default class MessageForEmptyList extends AbstractView {
   constructor(title) {
     super();
     this._title = title;

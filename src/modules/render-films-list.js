@@ -1,5 +1,5 @@
 import FilmCard from '../view/film-card';
-import MessageForEmpty from '../view/cards-container-empty';
+import MessageForEmptyList from '../view/message-for-empty-list';
 import {renderDOMElement, Positions} from '../utils/render';
 
 const DEFAULT_CARDS_NUMBER = 5;
@@ -23,7 +23,7 @@ export const renderFilmsList = (data) => {
   const filmsContainer = document.querySelectorAll('.films-list__container')[0];
   if (data.length === 0) {
     const message = getMessageForEmpty(getMessageOption());
-    const messageElement = new MessageForEmpty(message);
+    const messageElement = new MessageForEmptyList(message);
     renderDOMElement(filmsContainer, messageElement, Positions.AFTERBEGIN);
   } else {
     for (let i = 0; i < DEFAULT_CARDS_NUMBER; i++) {
