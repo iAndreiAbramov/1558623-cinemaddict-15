@@ -151,4 +151,15 @@ export default class FilmPopup extends AbstractView {
   getTemplate() {
     return getFilmPopupHtml(this._filmData);
   }
+
+  _clickCallback(evt) {
+    evt.preventDefault();
+    this._callback.click();
+  }
+
+  setControlClickHandler(callback) {
+    this._callback.click = callback;
+    const controls = this.getTemplate().querySelector('.film-details__controls');
+    controls.addEventListener('click', this._clickCallback);
+  }
 }
