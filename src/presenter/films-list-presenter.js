@@ -9,10 +9,12 @@ import FiltersMenu from '../view/filters-menu';
 import SortPanel from '../view/sort-panel';
 import {showPopup} from '../modules/show-popup';
 import MoreButton from '../view/more-button';
-import {showMoreCards} from '../modules/show-more-cards';
 import FilmCard from '../view/film-card';
 import {sortByCommentsNumber, sortByRating} from '../modules/data-sort';
 import {getAllMovies} from '../modules/data-filters';
+
+const DEFAULT_CARDS_NUMBER = 5;
+const CARDS_COUNT_STEP = 5;
 
 export default class FilmsListPresenter {
   constructor() {
@@ -22,6 +24,8 @@ export default class FilmsListPresenter {
     this._mostCommentedContainer = new ExtraContainer('Most commented');
     this._initialData = getAllMovies();
     this._mainContainer = document.querySelector('.main');
+    this._initialCardsNumber = DEFAULT_CARDS_NUMBER;
+    this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
   }
 
   init() {
@@ -57,6 +61,24 @@ export default class FilmsListPresenter {
     renderDOMElement(this._mainContainer, sortPanel, Positions.BEFOREEND);
   }
 
+  _handleMoreButtonClick() {
+    const filmsContainer = document.querySelectorAll('.films-list__container')[0];
+    const showMoreButton = document.querySelector('.films-list__show-more');
+
+    let shownCardsNumber = filmsContainer.children.length;
+
+    const cardsToShow = Math.min(shownCardsNumber + CARDS_COUNT_STEP, this._initialData.length);
+
+    while (shownCardsNumber < cardsToShow) {
+      const filmCard = new FilmCard(this._initialData[shownCardsNumber]);
+      renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
+      shownCardsNumber++;
+    }
+    if (shownCardsNumber === this._initialData.length) {
+      showMoreButton.remove();
+    }
+  }
+
   _renderCardsContainers() {
     this._cardsContainer.setClickCallback(showPopup);
 
@@ -70,14 +92,12 @@ export default class FilmsListPresenter {
 
     const showMoreContainer = document.querySelector('.films-list');
     const showMoreButton = new MoreButton();
-    showMoreButton.setClickHandler(showMoreCards);
+    showMoreButton.setClickHandler(this._handleMoreButtonClick);
 
     renderDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
   }
 
   _renderFilmsList(data) {
-    const DEFAULT_CARDS_NUMBER = 5;
-
     const getMessageForEmpty = (option) => {
       const messagesForEmpty = {
         '#all': 'There are no movies in our database',
@@ -99,7 +119,7 @@ export default class FilmsListPresenter {
       const messageElement = new MessageForEmptyList(message);
       renderDOMElement(filmsContainer, messageElement, Positions.AFTERBEGIN);
     } else {
-      for (let i = 0; i < DEFAULT_CARDS_NUMBER; i++) {
+      for (let i = 0; i < this._initialCardsNumber; i++) {
         const filmCard = new FilmCard(data[i]);
         renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
       }
