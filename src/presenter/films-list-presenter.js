@@ -10,8 +10,7 @@ import SortPanel from '../view/sort-panel';
 import FilmCard from '../view/film-card';
 import {sortByCommentsNumber, sortByRating} from '../modules/data-sort';
 import {getAllMovies} from '../modules/data-filters';
-import {moviesData} from '../mock-data/movies-data';
-import {getRandomInteger, isEscEvent} from '../utils/common';
+import {getMovieById, isEscEvent} from '../utils/common';
 import FilmPopup from '../view/film-popup';
 import CommentItem from '../view/popup-comment';
 import MoreButton from '../view/more-button';
@@ -25,22 +24,23 @@ export default class FilmsListPresenter {
     this._cardsContainer = new CardsContainer();
     this._topRatedContainer = new ExtraContainer('Top rated');
     this._mostCommentedContainer = new ExtraContainer('Most commented');
-    this._initialData = getAllMovies();
+    this._allMovies = getAllMovies();
     this._mainContainer = document.querySelector('.main');
     this._defaultCardsNumber = DEFAULT_CARDS_NUMBER;
     this._cardsCountStep = CARDS_COUNT_STEP;
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
+    this._showPopup = this._showPopup.bind(this);
   }
 
   init() {
-    this._renderFilmsNumber(this._initialData);
-    this._renderUserRank(this._initialData);
-    this._renderFiltersMenu(this._initialData);
+    this._renderFilmsNumber(this._allMovies);
+    this._renderUserRank(this._allMovies);
+    this._renderFiltersMenu(this._allMovies);
     this._renderSortPanel();
     this._renderCardsContainers();
-    this._renderFilmsList(this._initialData);
-    this._renderTopRated(this._initialData);
-    this._renderMostCommented(this._initialData);
+    this._renderFilmsList(this._allMovies);
+    this._renderTopRated(this._allMovies);
+    this._renderMostCommented(this._allMovies);
   }
 
   _renderFilmsNumber(data) {
@@ -71,14 +71,14 @@ export default class FilmsListPresenter {
 
     let shownCardsNumber = filmsContainer.children.length;
 
-    const cardsToShow = Math.min(shownCardsNumber + this._cardsCountStep, this._initialData.length);
+    const cardsToShow = Math.min(shownCardsNumber + this._cardsCountStep, this._allMovies.length);
 
     while (shownCardsNumber < cardsToShow) {
-      const filmCard = new FilmCard(this._initialData[shownCardsNumber]);
+      const filmCard = new FilmCard(this._allMovies[shownCardsNumber]);
       renderDOMElement(filmsContainer, filmCard, Positions.BEFOREEND);
       shownCardsNumber++;
     }
-    if (shownCardsNumber === this._initialData.length) {
+    if (shownCardsNumber === this._allMovies.length) {
       showMoreButton.remove();
     }
   }
@@ -93,8 +93,9 @@ export default class FilmsListPresenter {
         if (activePopup) {
           activePopup.remove();
         }
-        //todo: Реализовать подстановку данных того фильма, на который кликнули, вместо случайного
-        const movieItem = moviesData[getRandomInteger(0, moviesData.length - 1)];
+
+        const targetId = clickEvt.target.closest('article').getAttribute('data-id');
+        const movieItem = getMovieById(this._allMovies, targetId);
         const {comments} = movieItem;
         const filmPopup = new FilmPopup(movieItem);
 

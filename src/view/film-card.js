@@ -5,9 +5,9 @@ import {getShortDescription} from '../utils/common';
 const MAX_DESCRIPTION_LENGTH = 140;
 
 const getFilmCardHtml = (filmData) => {
-  const {comments, filmInfo, userDetails} = filmData;
+  const {id, comments, filmInfo, userDetails} = filmData;
   return `
-    <article class="film-card">
+    <article class="film-card" data-id="${id}">
       <h3 class="film-card__title">${filmInfo.title}</h3>
       <p class="film-card__rating">${filmInfo.totalRating}</p>
       <p class="film-card__info">

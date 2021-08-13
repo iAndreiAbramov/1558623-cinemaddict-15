@@ -33,3 +33,5 @@ export const getShortDescription = (description, maxLength) => {
   }
   return description;
 };
+
+export const getMovieById = (arrayOfMovies, identifier) => arrayOfMovies.find((item) => +item.id === +identifier);
