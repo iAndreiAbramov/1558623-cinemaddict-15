@@ -14,6 +14,7 @@ import {
   Writers
 } from './data-sets';
 import {
+  getMovieId,
   getRandomBoolean,
   getRandomDescription,
   getRandomFloat,
@@ -40,7 +41,7 @@ const getRandomFilmData = (numberOfMovies) => {
   const movies = [];
   for (let i = 0; i < numberOfMovies; i++)  {
     movies.push({
-      id: getRandomInteger(MIN_FILM_ID, MAX_FILM_ID),
+      id: getMovieId(),
       comments: getRandomCommentsData(getRandomInteger(MIN_COMMENTS_NUMBER, MAX_COMMENTS_NUMBER)),
       filmInfo: {
         title: getRandomItem(FilmsTitles),

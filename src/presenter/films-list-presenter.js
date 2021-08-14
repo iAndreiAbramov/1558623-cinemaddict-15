@@ -14,9 +14,15 @@ import {getMovieById, isEscEvent} from '../utils/common';
 import FilmPopup from '../view/film-popup';
 import CommentItem from '../view/popup-comment';
 import MoreButton from '../view/more-button';
+import {moviesData} from '../mock-data/movies-data';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
+const UserDetailsOptions = {
+  'add-to-watchlist': 'watchlist',
+  'mark-as-watched': 'alreadyWatched',
+  'favorite': 'favorite',
+};
 
 export default class FilmsListPresenter {
   constructor() {
@@ -29,7 +35,7 @@ export default class FilmsListPresenter {
     this._defaultCardsNumber = DEFAULT_CARDS_NUMBER;
     this._cardsCountStep = CARDS_COUNT_STEP;
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
-    this._showPopup = this._showPopup.bind(this);
+    this._handleContainerClick = this._handleContainerClick.bind(this);
   }
 
   init() {
@@ -83,12 +89,14 @@ export default class FilmsListPresenter {
     }
   }
 
-  _showPopup() {
+  _handleContainerClick() {
     const cardsContainers = document.querySelectorAll('.films-list__container');
     const popupContainer = document.querySelector('.footer');
 
     cardsContainers.forEach((cardsContainer) => {
       cardsContainer.addEventListener('click', (clickEvt) => {
+        clickEvt.preventDefault();
+        clickEvt.stopImmediatePropagation();
         const activePopup = document.querySelector('.film-details');
         if (activePopup) {
           activePopup.remove();
@@ -132,12 +140,23 @@ export default class FilmsListPresenter {
             renderDOMElement(commentsContainer, comment, Positions.BEFOREEND);
           });
         }
+
+        if (clickEvt.target.classList.contains('film-card__controls-item')) {
+          const card = clickEvt.target.closest('article');
+          const id = card.getAttribute('data-id');
+          const option = (
+            [...clickEvt.target.classList]
+              .join('')
+              .replace(/(film-card__controls-item)|(active)|(--)/gi, '')
+          );
+          this._updateUserDetails(id, UserDetailsOptions[option]);
+        }
       });
     });
   }
 
   _renderCardsContainers() {
-    this._cardsContainer.setClickCallback(this._showPopup);
+    this._cardsContainer.setClickCallback(this._handleContainerClick);
 
     renderDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
 
@@ -152,6 +171,13 @@ export default class FilmsListPresenter {
     showMoreButton.setClickHandler(this._handleMoreButtonClick);
 
     renderDOMElement(showMoreContainer, showMoreButton, Positions.BEFOREEND);
+  }
+
+  _updateUserDetails(movieId, option) {
+    const movieData = getMovieById(moviesData, movieId);
+    console.log(movieData.userDetails[option]);
+    movieData.userDetails[option] = !movieData.userDetails[option];
+    console.log(getMovieById(moviesData, movieId));
   }
 
   _renderFilmsList(data) {
