@@ -36,6 +36,8 @@ export const getShortDescription = (description, maxLength) => {
 
 export const getMovieById = (arrayOfMovies, identifier) => arrayOfMovies.find((item) => +item.id === +identifier);
 
+export const getMovieIndexById = (arrayOfMovies, identifier) => arrayOfMovies.findIndex((item) => +item.id === +identifier);
+
 export const getMovieId = (() => {
   let id = 0;
   return () => ++id;

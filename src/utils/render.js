@@ -30,3 +30,12 @@ export const renderDOMElement = (parent, DOMElement, position) => {
     parent.insertAdjacentElement(position, DOMElement);
   }
 };
+
+export const replaceDOMElement = (parent, newElement, oldElement) => {
+  if (newElement instanceof AbstractView) {
+    newElement = newElement.getElement();
+  }
+  if (parent) {
+    parent.replaceChild(newElement, oldElement);
+  }
+};

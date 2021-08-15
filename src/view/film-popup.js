@@ -2,10 +2,10 @@ import {reformatDate} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getFilmPopupHtml = (filmData) => {
-  const {comments, filmInfo, userDetails} = filmData;
+  const {id, comments, filmInfo, userDetails} = filmData;
   const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
   return `
-    <section class="film-details">
+    <section class="film-details" data-id="${id}">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
@@ -83,7 +83,7 @@ const getFilmPopupHtml = (filmData) => {
                 film-details__control-button--watched
                 ${userDetails.alreadyWatched ? 'film-details__control-button--active' : ''}
                "
-               id="watched"
+               id="alreadyWatched"
                name="watched">
                Already watched
            </button>
