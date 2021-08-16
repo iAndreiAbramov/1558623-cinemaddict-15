@@ -8,13 +8,11 @@ import FiltersMenu from '../view/filters-menu';
 import SortPanel from '../view/sort-panel';
 import FilmCard from '../view/film-card';
 import {getAllMovies, getWatchedMovies} from '../modules/data-filters';
-import {getMovieById, getMovieIndexById, isEscEvent} from '../utils/common';
-import FilmPopup from '../view/film-popup';
-import CommentItem from '../view/popup-comment';
+import {getMovieById, getMovieIndexById} from '../utils/common';
 import {moviesData} from '../mock-data/movies-data';
-import PopupControls from '../view/popup-controls';
 import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
+import PopupPresenter from './popup-presenter';
 
 export default class ShellPresenter {
   constructor() {
@@ -26,7 +24,15 @@ export default class ShellPresenter {
     this._filmsContainer = new FilmsListContainer();
     this._topRatedContainer = new ExtraContainer('Top rated');
     this._mostCommentedContainer = new ExtraContainer('Most commented');
+    this._previusPopup = null;
     this._handleContainerClick = this._handleContainerClick.bind(this);
+    this._States = {
+      userRank: null,
+      filtersMenu: false,
+      sortPanel: false,
+      filmsContainers: false,
+      extraContainers: false,
+    };
   }
 
   init() {
@@ -75,9 +81,8 @@ export default class ShellPresenter {
   // в категорию при клике на соотв. кнопку в карточке и в попапе
   _handleContainerClick() {
     const cardsContainers = document.querySelectorAll('.films-list__container');
-    const popupContainer = document.querySelector('.footer');
 
-    // Открытие попапа
+    // Обработчик клика на все контейнеры с карточками
     cardsContainers.forEach((cardsContainer) => {
       cardsContainer.addEventListener('click', (clickEvt) => {
         clickEvt.preventDefault();
@@ -85,66 +90,18 @@ export default class ShellPresenter {
 
         const targetId = clickEvt.target.closest('article').getAttribute('data-id');
         const movieItem = getMovieById(getAllMovies(), targetId);
-        const {comments} = movieItem;
-        const filmPopup = new FilmPopup(movieItem);
-        const activePopup = document.querySelector('.film-details');
 
-        if (activePopup) {
-          activePopup.remove();
-        }
-
+        // Открытие попапа
         if (
           clickEvt.target.classList.contains('film-card__poster') ||
           clickEvt.target.classList.contains('film-card__title') ||
           clickEvt.target.classList.contains('film-card__comments')
         ) {
-          insertDOMElement(popupContainer, filmPopup, Positions.AFTEREND);
-          document.body.style.overflow = 'hidden';
-
-          const popup = document.querySelector('.film-details');
-          const closeButton = popup.querySelector('.film-details__close-btn');
-          const commentsContainer = popup.querySelector('.film-details__comments-list');
-
-          // Обработчик клика по контролам попапа
-          const container = popup.querySelector('.film-details__top-container');
-
-          popup.addEventListener('click', (controlClickEvt) => {
-            if (controlClickEvt.target.classList.contains('film-details__control-button')) {
-              controlClickEvt.preventDefault();
-              controlClickEvt.stopPropagation();
-              const option = controlClickEvt.target.getAttribute('id');
-              this._updateUserDetails(targetId, option);
-              this._renderPopupControls(container, targetId);
-            }
-          });
-
-          // Закрытие попапа
-          const closePopupByEsc = (keyDownEvt) => {
-            if (isEscEvent(keyDownEvt)) {
-              popup.remove();
-              document.removeEventListener('keydown', closePopupByEsc);
-              document.body.style.overflow = '';
-              // обновляем данные при закрытии попапа
-              this._renderSingleCard(cardsContainers, targetId);
-            }
-          };
-
-          const closePopupByClick = () => {
-            popup.remove();
-            document.removeEventListener('keydown', closePopupByEsc);
-            document.body.style.overflow = '';
-            // обновляем данные при закрытии попапа
-            this._renderSingleCard(cardsContainers, targetId);
-          };
-
-          document.addEventListener('keydown', closePopupByEsc);
-          closeButton.addEventListener('click', closePopupByClick);
-
-          // Отрисовка комментариев
-          comments.forEach((commentItem) => {
-            const comment = new CommentItem(commentItem).getElement();
-            insertDOMElement(commentsContainer, comment, Positions.BEFOREEND);
-          });
+          if (!this._previusPopup || !this._previusPopup.isOpened) {
+            const filmPopup = new PopupPresenter(movieItem);
+            filmPopup.init();
+            this._previusPopup = filmPopup;
+          }
         }
 
         // Если клик по контролам карточки фильма
@@ -181,12 +138,7 @@ export default class ShellPresenter {
     filmList.init();
   }
 
-  // обновление данных в хранилище о при добавлении или удалении фильма в категорию
-  _updateUserDetails(movieId, option) {
-    const movieData = getMovieById(moviesData, movieId);
-    movieData.userDetails[option] = !movieData.userDetails[option];
-  }
-
+  // Обновление данных в доп. контейнерах
   _renderExtraContainers() {
     const extraContainers = new ExtraPresenter();
     extraContainers.init();
@@ -206,11 +158,9 @@ export default class ShellPresenter {
     });
   }
 
-  // Рендер блока с контродами в попапе
-  _renderPopupControls(container, movieId) {
-    const movieIndex = getMovieIndexById(moviesData, movieId);
-    const newControls = new PopupControls(moviesData[movieIndex]);
-    const oldControls = container.querySelector('.film-details__controls');
-    replaceDOMElement(container, newControls, oldControls);
+  // обновление данных в хранилище о при добавлении в категорию или удалении фильма
+  _updateUserDetails(movieId, option) {
+    const movieData = getMovieById(moviesData, movieId);
+    movieData.userDetails[option] = !movieData.userDetails[option];
   }
 }
