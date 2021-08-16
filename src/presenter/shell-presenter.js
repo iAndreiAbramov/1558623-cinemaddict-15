@@ -21,7 +21,7 @@ const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
 const NUMBER_OF_EXTRA_CARDS = 2;
 
-export default class FilmsListPresenter {
+export default class ShellPresenter {
   constructor() {
     this._listsContainer = new ListsContainer();
     this._cardsContainer = new CardsContainer();
