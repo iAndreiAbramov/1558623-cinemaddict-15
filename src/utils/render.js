@@ -17,7 +17,7 @@ export const createElement = (template) => {
   return element.children[counter];
 };
 
-export const renderDOMElement = (parent, DOMElement, position) => {
+export const insertDOMElement = (parent, DOMElement, position) => {
   if (parent instanceof AbstractView) {
     parent = parent.getElement();
   }

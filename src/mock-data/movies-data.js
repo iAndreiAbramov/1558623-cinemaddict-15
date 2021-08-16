@@ -25,8 +25,6 @@ import {
 
 const MIN_COMMENTS_NUMBER = 0;
 const MAX_COMMENTS_NUMBER = 5;
-const MIN_FILM_ID = 1;
-const MAX_FILM_ID = 10000;
 const MIN_RATING = 0;
 const MAX_RATING = 10;
 const RATING_DECIMALS = 1;
