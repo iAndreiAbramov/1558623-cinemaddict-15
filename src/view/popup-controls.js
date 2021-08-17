@@ -25,7 +25,7 @@ export default class PopupControls extends AbstractView {
 
   _clickCallback(evt) {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.click(evt);
   }
 
   setClickHandler(callback) {

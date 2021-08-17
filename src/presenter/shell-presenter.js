@@ -31,6 +31,7 @@ export default class ShellPresenter {
     this._shownMostCommented = null;
     this._previusPopup = null;
     this._handleContainerClick = this._handleContainerClick.bind(this);
+    this._onPopupClose = this._onPopupClose.bind(this);
     this._PreviousStates = {
       userRank: null,
       filtersMenu: null,
@@ -46,6 +47,7 @@ export default class ShellPresenter {
     this._renderFilmsContainers();
     this._renderFilmsList(this._initialData);
     this._renderExtraContainers();
+    document.addEventListener('popupClose', this._onPopupClose);
   }
 
   // Рендер поля с количеством фильмов в базе
@@ -174,5 +176,9 @@ export default class ShellPresenter {
       replaceDOMElement(container, newCard, oldCard);
       this._shownMostCommented.set(id, newCard.getElement());
     }
+  }
+
+  _onPopupClose(evt) {
+    this._updateAllCardInstances(evt.detail.id);
   }
 }

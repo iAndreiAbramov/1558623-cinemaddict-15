@@ -3,6 +3,7 @@ import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
 import {isEscEvent} from '../utils/common';
+import {updateUserDetails} from '../modules/data-updaters';
 
 export default class PopupPresenter {
   constructor(movieItem) {
@@ -16,8 +17,15 @@ export default class PopupPresenter {
     this._comments = this._movieItem.comments;
     this._id = this._movieItem.id;
     this._isOpened = false;
+    this._closeEvent = new CustomEvent(
+      'popupClose',
+      {
+        bubbles: true,
+        detail: {id: this._id},
+      });
     this._closePopupByClick = this._closePopupByClick.bind(this);
     this._closePopupByEsc = this._closePopupByEsc.bind(this);
+    this._updateControls = this._updateControls.bind(this);
   }
 
   get isOpened() {
@@ -53,8 +61,10 @@ export default class PopupPresenter {
     }
   }
 
-  _updateControls() {
-    console.log('update');
+  _updateControls(evt) {
+    const option = evt.target.getAttribute('id');
+    updateUserDetails(this._id, option);
+    this._renderControls();
   }
 
   _renderComments() {
@@ -66,17 +76,19 @@ export default class PopupPresenter {
 
   _closePopupByEsc(keyDownEvt) {
     if (isEscEvent(keyDownEvt)) {
-      this._clear();
-      document.removeEventListener('keydown', this._closePopupByEsc);
-      document.body.style.overflow = '';
-      this._isOpened = false;
+      this._closePopup();
     }
   }
 
   _closePopupByClick() {
+    this._closePopup();
+  }
+
+  _closePopup() {
     this._clear();
     document.removeEventListener('keydown', this._closePopupByEsc);
     document.body.style.overflow = '';
     this._isOpened = false;
+    document.dispatchEvent(this._closeEvent);
   }
 }
