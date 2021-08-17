@@ -17,7 +17,7 @@ export const createElement = (template) => {
   return element.children[counter];
 };
 
-export const renderDOMElement = (parent, DOMElement, position) => {
+export const insertDOMElement = (parent, DOMElement, position) => {
   if (parent instanceof AbstractView) {
     parent = parent.getElement();
   }
@@ -28,5 +28,14 @@ export const renderDOMElement = (parent, DOMElement, position) => {
 
   if (parent) {
     parent.insertAdjacentElement(position, DOMElement);
+  }
+};
+
+export const replaceDOMElement = (parent, newElement, oldElement) => {
+  if (newElement instanceof AbstractView) {
+    newElement = newElement.getElement();
+  }
+  if (parent) {
+    parent.replaceChild(newElement, oldElement);
   }
 };

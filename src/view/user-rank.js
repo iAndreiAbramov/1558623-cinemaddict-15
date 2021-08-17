@@ -15,7 +15,7 @@ const createUserRankHtml = (data) => {
     userRank = 21;
   } else if (watched >= 11) {
     userRank = 11;
-  } else if (watched > 1) {
+  } else if (watched >= 1) {
     userRank = 1;
   } else {
     userRank = 0;

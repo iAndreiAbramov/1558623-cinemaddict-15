@@ -2,11 +2,11 @@ import {reformatDate} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getFilmPopupHtml = (filmData) => {
-  const {comments, filmInfo, userDetails} = filmData;
+  const {id, comments, filmInfo} = filmData;
   const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
   return `
-    <section class="film-details">
-    <form class="film-details__inner" action="" method="get">
+    <section class="film-details" data-id="${id}">
+    <form class="film-details__inner" action="#" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
           <button class="film-details__close-btn" type="button">close</button>
@@ -63,42 +63,6 @@ const getFilmPopupHtml = (filmData) => {
             <p class="film-details__film-description">${filmInfo.description}</p>
           </div>
         </div>
-
-        <section class="film-details__controls">
-          <button
-            type="button"
-            class="
-              film-details__control-button
-              film-details__control-button--watchlist
-              ${userDetails.watchlist ? 'film-details__control-button--active' : ''}
-            "
-            id="watchlist"
-            name="watchlist">
-            Add to watchlist
-          </button>
-            <button
-               type="button"
-               class="
-                film-details__control-button
-                film-details__control-button--watched
-                ${userDetails.alreadyWatched ? 'film-details__control-button--active' : ''}
-               "
-               id="watched"
-               name="watched">
-               Already watched
-           </button>
-          <button
-             type="button"
-             class="
-               film-details__control-button
-               film-details__control-button--favorite
-               ${userDetails.favorite ? 'film-details__control-button--active' : ''}
-               "
-             id="favorite"
-             name="favorite">
-             Add to favorites
-           </button>
-        </section>
       </div>
 
       <div class="film-details__bottom-container">
