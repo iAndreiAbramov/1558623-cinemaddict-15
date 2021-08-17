@@ -3,7 +3,6 @@ import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
 
-const DEFAULT_RENDER_START_AT = 0;
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
 
@@ -12,10 +11,14 @@ export default class FilmsListPresenter {
     this._data = data;
     this._container = document.querySelectorAll('.films-list__container')[0];
     this._showMoreButton = new MoreButton();
+    this._shownCards = new Map();
     this._initialCardsNumber = Math.min(DEFAULT_CARDS_NUMBER, data.length);
-    this._shownCardsNumber = DEFAULT_RENDER_START_AT;
     this._cardsCountStep = CARDS_COUNT_STEP;
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
+  }
+
+  get shownCards() {
+    return this._shownCards;
   }
 
   init() {
@@ -24,7 +27,7 @@ export default class FilmsListPresenter {
 
   _renderDefault(data) {
     if (data.length > 0) {
-      this._render(data, DEFAULT_RENDER_START_AT, this._initialCardsNumber);
+      this._render(data, this._shownCards.size, this._initialCardsNumber);
     } else {
       this._renderEmpty();
     }
@@ -38,9 +41,10 @@ export default class FilmsListPresenter {
   _render(data, from, to) {
     const dataToRender = data.slice(from, to);
     dataToRender.forEach((dataItem) => {
+      const {id} = dataItem;
       const filmCard = new FilmCard(dataItem);
       insertDOMElement(this._container, filmCard, Positions.BEFOREEND);
-      this._shownCardsNumber++;
+      this._shownCards.set(id, filmCard.getElement());
     });
   }
 
@@ -65,15 +69,21 @@ export default class FilmsListPresenter {
     insertDOMElement(this._container, messageElement, Positions.AFTERBEGIN);
   }
 
+  _clear() {
+    this._shownCards.forEach((value) => {
+      value.remove();
+    });
+    this._shownCards.clear();
+    this._showMoreButton.getElement().remove();
+  }
+
   _handleMoreButtonClick() {
-    const showMoreButton = document.querySelector('.films-list__show-more');
-    const cardsNumberToShow = Math.min(this._shownCardsNumber + this._cardsCountStep, this._data.length);
+    const cardsNumberToShow = Math.min(this._shownCards.size + this._cardsCountStep, this._data.length);
 
-    this._render(this._data, this._shownCardsNumber, cardsNumberToShow);
-    this._shownCardsNumber += cardsNumberToShow - this._shownCardsNumber;
+    this._render(this._data, this._shownCards.size, cardsNumberToShow);
 
-    if (this._shownCardsNumber === this._data.length) {
-      showMoreButton.remove();
+    if (this._shownCards.size === this._data.length) {
+      this._showMoreButton.getElement().remove();
     }
   }
 }

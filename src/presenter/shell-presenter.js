@@ -8,14 +8,15 @@ import FiltersMenu from '../view/filters-menu';
 import SortPanel from '../view/sort-panel';
 import FilmCard from '../view/film-card';
 import {getAllMovies, getWatchedMovies} from '../modules/data-filters';
-import {getMovieById, getMovieIndexById} from '../utils/common';
-import {moviesData} from '../mock-data/movies-data';
+import {getMovieById} from '../utils/common';
 import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
+import {updateUserDetails} from '../modules/data-updaters';
 
 export default class ShellPresenter {
-  constructor() {
+  constructor(initialData) {
+    this._initialData = initialData;
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
@@ -24,24 +25,26 @@ export default class ShellPresenter {
     this._filmsContainer = new FilmsListContainer();
     this._topRatedContainer = new ExtraContainer('Top rated');
     this._mostCommentedContainer = new ExtraContainer('Most commented');
+    this._filmList = null;
+    this._shownMainCards = null;
+    this._shownTopRated = null;
+    this._shownMostCommented = null;
     this._previusPopup = null;
     this._handleContainerClick = this._handleContainerClick.bind(this);
-    this._States = {
+    this._PreviousStates = {
       userRank: null,
-      filtersMenu: false,
-      sortPanel: false,
-      filmsContainers: false,
-      extraContainers: false,
+      filtersMenu: null,
+      sortPanel: null,
     };
   }
 
   init() {
-    this._renderFilmsNumber(getAllMovies());
-    this._renderUserRank(getAllMovies());
-    this._renderFiltersMenu(getAllMovies());
+    this._renderFilmsNumber(this._initialData);
+    this._renderUserRank(this._initialData);
+    this._renderFiltersMenu(this._initialData);
     this._renderSortPanel();
     this._renderFilmsContainers();
-    this._renderFilmsList(getAllMovies());
+    this._renderFilmsList(this._initialData);
     this._renderExtraContainers();
   }
 
@@ -53,114 +56,123 @@ export default class ShellPresenter {
 
   // Рендер поля ранга пользователя
   _renderUserRank(data) {
-    const oldUserRank = this._userRankContainer.querySelector('.header__profile');
-    if (oldUserRank) {
-      oldUserRank.remove();
+    if (this._PreviousStates.userRank) {
+      this._PreviousStates.userRank.remove();
     }
     const userRank = new UserRankView(data);
+    this._PreviousStates.userRank = userRank.getElement();
     insertDOMElement(this._userRankContainer, userRank, Positions.BEFOREEND);
   }
 
   // Рендер меню фильтров
   _renderFiltersMenu(data) {
-    const oldMenu = this._mainContainer.querySelector('.main-navigation');
-    if (oldMenu) {
-      oldMenu.remove();
+    if (this._PreviousStates.filtersMenu) {
+      this._PreviousStates.filtersMenu.remove();
     }
     const filtersMenu = new FiltersMenu(data);
+    this._PreviousStates.filtersMenu = filtersMenu.getElement();
     insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
   }
 
   // Отрисовка панели сортировки
   _renderSortPanel() {
+    if (this._PreviousStates.sortPanel) {
+      this._PreviousStates.sortPanel.remove();
+    }
+    this._PreviousStates.sortPanel = this._sortPanel;
     insertDOMElement(this._mainContainer, this._sortPanel, Positions.BEFOREEND);
-  }
-
-  // Обработчик клика по любому контейнеру с фильмами
-  // Содержит в себе открытие и закрытие попапа, добавление и удаление фильма
-  // в категорию при клике на соотв. кнопку в карточке и в попапе
-  _handleContainerClick() {
-    const cardsContainers = document.querySelectorAll('.films-list__container');
-
-    // Обработчик клика на все контейнеры с карточками
-    cardsContainers.forEach((cardsContainer) => {
-      cardsContainer.addEventListener('click', (clickEvt) => {
-        clickEvt.preventDefault();
-        clickEvt.stopImmediatePropagation();
-
-        const targetId = clickEvt.target.closest('article').getAttribute('data-id');
-        const movieItem = getMovieById(getAllMovies(), targetId);
-
-        // Открытие попапа
-        if (
-          clickEvt.target.classList.contains('film-card__poster') ||
-          clickEvt.target.classList.contains('film-card__title') ||
-          clickEvt.target.classList.contains('film-card__comments')
-        ) {
-          if (!this._previusPopup || !this._previusPopup.isOpened) {
-            const filmPopup = new PopupPresenter(movieItem);
-            filmPopup.init();
-            this._previusPopup = filmPopup;
-          }
-        }
-
-        // Если клик по контролам карточки фильма
-        if (clickEvt.target.classList.contains('film-card__controls-item')) {
-          const oldCard = clickEvt.target.closest('article');
-          const id = oldCard.getAttribute('data-id');
-          const option = clickEvt.target.getAttribute('data-details');
-
-          this._updateUserDetails(id, option);
-          this._renderFiltersMenu(getAllMovies());
-          this._renderUserRank(getWatchedMovies());
-          this._renderSingleCard(cardsContainers, id);
-        }
-      });
-    });
   }
 
   // отрисовка основного и дополнительных контейнеров
   _renderFilmsContainers() {
     this._listsContainer.setClickCallback(this._handleContainerClick);
-
     insertDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
 
-    const filmListsContainer = document.querySelector('.films');
-
-    insertDOMElement(filmListsContainer, this._filmsContainer, Positions.AFTERBEGIN);
-    insertDOMElement(filmListsContainer, this._topRatedContainer, Positions.BEFOREEND);
-    insertDOMElement(filmListsContainer, this._mostCommentedContainer, Positions.BEFOREEND);
+    insertDOMElement(this._listsContainer, this._filmsContainer, Positions.AFTERBEGIN);
+    insertDOMElement(this._listsContainer, this._topRatedContainer, Positions.BEFOREEND);
+    insertDOMElement(this._listsContainer, this._mostCommentedContainer, Positions.BEFOREEND);
   }
 
   // Перерисовка списка фильмов
   _renderFilmsList(data) {
-    const filmList = new FilmsListPresenter(data);
-    filmList.init();
+    this._filmList = new FilmsListPresenter(data);
+    this._filmList.init();
+    this._shownMainCards = this._filmList.shownCards;
   }
 
   // Обновление данных в доп. контейнерах
   _renderExtraContainers() {
     const extraContainers = new ExtraPresenter();
     extraContainers.init();
+    this._shownTopRated = extraContainers.shownTopRated;
+    this._shownMostCommented = extraContainers.shownMostCommented;
+  }
+
+  // Обработчик клика по любому контейнеру с фильмами
+  // Содержит в себе открытие попапа, добавление и удаление фильма
+  // в категорию при клике на соотв. кнопку в карточке
+  _handleContainerClick(evt) {
+    // Открытие попапа
+    if (
+      evt.target.classList.contains('film-card__poster') ||
+      evt.target.classList.contains('film-card__title') ||
+      evt.target.classList.contains('film-card__comments')
+    ) {
+      const targetId = +evt.target.closest('article').getAttribute('data-id');
+      const movieItem = getMovieById(getAllMovies(), targetId);
+      if (!this._previusPopup || !this._previusPopup.isOpened) {
+        const filmPopup = new PopupPresenter(movieItem);
+        filmPopup.init();
+        this._previusPopup = filmPopup;
+      }
+    }
+    // Если клик по контролам карточки фильма
+    if (evt.target.classList.contains('film-card__controls-item')) {
+      const oldCard = evt.target.closest('article');
+      const id = +oldCard.getAttribute('data-id');
+      const option = evt.target.getAttribute('data-details');
+
+      updateUserDetails(id, option);
+      this._renderFiltersMenu(getAllMovies());
+      this._renderUserRank(getWatchedMovies());
+      this._updateAllCardInstances(id);
+    }
   }
 
   // Обновление данных одной карточки во всех местах, где она отображается
-  _renderSingleCard(containers, id) {
-    containers.forEach((container) => {
-      const cards = [...container.children];
-      const oldCard = cards.find((card) => card.getAttribute('data-id') === id);
-      if (oldCard) {
-        const movieIndex = getMovieIndexById(moviesData, id);
-        const newCard = new FilmCard(moviesData[movieIndex]);
-
-        replaceDOMElement(container, newCard, oldCard);
-      }
-    });
+  _updateAllCardInstances(id) {
+    this._updateMainList(id);
+    this._updateTopRated(id);
+    this._updateMostCommented(id);
   }
 
-  // обновление данных в хранилище о при добавлении в категорию или удалении фильма
-  _updateUserDetails(movieId, option) {
-    const movieData = getMovieById(moviesData, movieId);
-    movieData.userDetails[option] = !movieData.userDetails[option];
+  _updateMainList(id) {
+    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const oldCard = this._shownMainCards.get(id);
+    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[0];
+    if (oldCard) {
+      replaceDOMElement(container, newCard, oldCard);
+      this._shownMainCards.set(id, newCard.getElement());
+    }
+  }
+
+  _updateTopRated(id) {
+    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const oldCard = this._shownTopRated.get(id);
+    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[1];
+    if (oldCard) {
+      replaceDOMElement(container, newCard, oldCard);
+      this._shownTopRated.set(id, newCard.getElement());
+    }
+  }
+
+  _updateMostCommented(id) {
+    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const oldCard = this._shownMostCommented.get(id);
+    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[2];
+    if (oldCard) {
+      replaceDOMElement(container, newCard, oldCard);
+      this._shownMostCommented.set(id, newCard.getElement());
+    }
   }
 }

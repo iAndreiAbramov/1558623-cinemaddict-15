@@ -16,13 +16,14 @@ export default class ListsContainer extends AbstractView {
 
   _clickCallback(evt) {
     evt.preventDefault();
-    this._callback.click();
+    evt.stopImmediatePropagation();
+    this._callback.click(evt);
   }
 
   setClickCallback(callback) {
     this._callback.click = callback;
     if (this.getElement()) {
-      this.getElement().addEventListener('click', this._clickCallback);
+      this.getElement().addEventListener('click',this._clickCallback);
     }
   }
 }

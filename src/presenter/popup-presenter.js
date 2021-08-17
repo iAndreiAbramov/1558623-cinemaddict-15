@@ -18,7 +18,6 @@ export default class PopupPresenter {
     this._isOpened = false;
     this._closePopupByClick = this._closePopupByClick.bind(this);
     this._closePopupByEsc = this._closePopupByEsc.bind(this);
-    // this.getStatus = this.getStatus.bind(this);
   }
 
   get isOpened() {
@@ -29,7 +28,6 @@ export default class PopupPresenter {
     this._show();
     this._isOpened = true;
   }
-
 
   _clear() {
     this._popupDOMElement.remove();

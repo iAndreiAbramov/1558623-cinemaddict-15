@@ -1,3 +1,5 @@
+export const isEscEvent = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
+
 export const getRandomInteger = (min, max) => {
   let startValue = Math.ceil(Math.min(min, max));
   let endValue = Math.floor(Math.max(min, max));
@@ -22,8 +24,6 @@ export const getRandomItem = (arrayOfItems) => {
 };
 
 export const getRandomSubArray = (arrayOfItems) => arrayOfItems.filter(() => getRandomBoolean());
-
-export const isEscEvent = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
 export const getRandomDescription = (arrayOfStrings) => arrayOfStrings.slice(0, getRandomInteger(1, 5)).join(' ');
 
