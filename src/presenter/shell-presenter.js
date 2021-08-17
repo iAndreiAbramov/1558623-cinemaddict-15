@@ -47,7 +47,6 @@ export default class ShellPresenter {
     this._renderFilmsContainers();
     this._renderFilmsList(this._initialData);
     this._renderExtraContainers();
-    document.addEventListener('popupClose', this._onPopupClose);
   }
 
   // Рендер поля с количеством фильмов в базе
@@ -125,6 +124,7 @@ export default class ShellPresenter {
       if (!this._previusPopup || !this._previusPopup.isOpened) {
         const filmPopup = new PopupPresenter(movieItem);
         filmPopup.init();
+        document.addEventListener('popupClose', this._onPopupClose);
         this._previusPopup = filmPopup;
       }
     }
@@ -180,5 +180,8 @@ export default class ShellPresenter {
 
   _onPopupClose(evt) {
     this._updateAllCardInstances(evt.detail.id);
+    this._renderFiltersMenu(getAllMovies());
+    this._renderUserRank(getWatchedMovies());
+    document.removeEventListener('popupClose', this._onPopupClose);
   }
 }
