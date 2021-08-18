@@ -18,8 +18,7 @@ export default class PopupPresenter {
     this._id = this._movieItem.id;
     this._isOpened = false;
     this._closeEvent = new CustomEvent(
-      'popupClose',
-      {
+      'popupClose', {
         bubbles: true,
         detail: {id: this._id},
       });
