@@ -25,6 +25,14 @@ export default class FilmsListPresenter {
     this._renderDefault(this._data);
   }
 
+  clear() {
+    this._shownCards.forEach((value) => {
+      value.remove();
+    });
+    this._shownCards.clear();
+    this._showMoreButton.getElement().remove();
+  }
+
   _renderDefault(data) {
     if (data.length > 0) {
       this._render(data, this._shownCards.size, this._initialCardsNumber);
@@ -67,14 +75,6 @@ export default class FilmsListPresenter {
     const message = getMessageForEmpty(getMessageOption());
     const messageElement = new MessageForEmptyList(message);
     insertDOMElement(this._container, messageElement, Positions.AFTERBEGIN);
-  }
-
-  _clear() {
-    this._shownCards.forEach((value) => {
-      value.remove();
-    });
-    this._shownCards.clear();
-    this._showMoreButton.getElement().remove();
   }
 
   _handleMoreButtonClick() {
