@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import {getRandomInteger} from './common';
 
+// eslint-disable-next-line no-undef
 const relativeTime = require('dayjs/plugin/relativeTime');
+// eslint-disable-next-line no-undef
 const duration = require('dayjs/plugin/duration');
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
