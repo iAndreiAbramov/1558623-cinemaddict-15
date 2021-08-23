@@ -1,8 +1,5 @@
 import {getRandomCommentsData} from './comments-data';
-import {
-  getRandomDate,
-  transformDuration
-} from '../utils/date';
+import {getRandomDate} from '../utils/date';
 import {
   Actors,
   Descriptions,
@@ -54,7 +51,7 @@ const getRandomFilmData = (numberOfMovies) => {
           date: getRandomDate(),
           releaseCountry: getRandomItem(ReleaseCountries),
         },
-        runtime: transformDuration(getRandomInteger(MIN_RUN_TIME, MAX_RUN_TIME)),
+        runtime: getRandomInteger(MIN_RUN_TIME, MAX_RUN_TIME),
         genre: getRandomSubArray(Genres).join(' '),
         description: getRandomDescription(Descriptions),
       },
