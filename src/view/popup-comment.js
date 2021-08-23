@@ -4,6 +4,7 @@ import AbstractView from './abstract-view';
 
 const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
+  const relativeDate = reformatDateForComments(date);
   return `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -13,7 +14,7 @@ const getCommentItemHtml = (commentDataItem) => {
         <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
-          <span class="film-details__comment-day">${reformatDateForComments(date)}</span>
+          <span class="film-details__comment-day">${relativeDate}</span>
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>

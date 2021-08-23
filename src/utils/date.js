@@ -1,8 +1,14 @@
 import dayjs from 'dayjs';
 import {getRandomInteger} from './common';
 
+// eslint-disable-next-line no-undef
+const relativeTime = require('dayjs/plugin/relativeTime');
+// eslint-disable-next-line no-undef
+const duration = require('dayjs/plugin/duration');
+dayjs.extend(relativeTime);
+dayjs.extend(duration);
+
 const DATE_INTERVAL_IN_DAYS = 365;
-const MINUTES_IN_HOUR = 60;
 
 // Возвращает случайную дату в интервале 365 дней назад с текущей даты по текущую дату в указанном формате.
 export const getRandomDate = () => {
@@ -12,12 +18,9 @@ export const getRandomDate = () => {
 
 export const reformatDate = (date, format) => dayjs(date).format(format);
 
-//todo: Реализовать показ относительного времени (плагин RelativeTime)
-export const reformatDateForComments = (date) => dayjs(date).format('YYYY/MM/DD HH:mm');
+export const reformatDateForComments = (date) => dayjs(date).fromNow();
 
-//Возвращает случайную длительность от 60 до 240 минут. Преобразует в формат 3h 24m
-export const transformDuration = (durationInMinutes) => {
-  const minutes = durationInMinutes % MINUTES_IN_HOUR;
-  const hours = (durationInMinutes - minutes) / MINUTES_IN_HOUR;
-  return `${hours}h ${minutes}m`;
+export const getDurationFromMinutes = (durationInMinutes) => {
+  const lasting = dayjs.duration(durationInMinutes, 'minutes');
+  return `${lasting.hours()}h ${lasting.minutes()}m`;
 };

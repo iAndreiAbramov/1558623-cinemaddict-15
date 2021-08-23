@@ -1,4 +1,4 @@
-import {reformatDate} from '../utils/date';
+import {getDurationFromMinutes, reformatDate} from '../utils/date';
 import AbstractView from './abstract-view';
 import {getShortDescription} from '../utils/common';
 
@@ -6,13 +6,15 @@ const MAX_DESCRIPTION_LENGTH = 140;
 
 const getFilmCardHtml = (filmData) => {
   const {id, comments, filmInfo, userDetails} = filmData;
+  const releaseYear = reformatDate(filmInfo.release.date, 'YYYY').slice(-4) || '';
+  const runtime = getDurationFromMinutes(filmInfo.runtime) || '';
   return `
     <article class="film-card" data-id="${id}">
       <h3 class="film-card__title">${filmInfo.title}</h3>
       <p class="film-card__rating">${filmInfo.totalRating}</p>
       <p class="film-card__info">
-        <span class="film-card__year">${reformatDate(filmInfo.release.date, 'YYYY').slice(-4)}</span>
-        <span class="film-card__duration">${filmInfo.runtime}</span>
+        <span class="film-card__year">${releaseYear}</span>
+        <span class="film-card__duration">${runtime}</span>
         <span class="film-card__genre">${filmInfo.genre}</span>
       </p>
       <img src="${filmInfo.poster}" alt="" class="film-card__poster" width="230" height="340">
