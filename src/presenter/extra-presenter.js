@@ -1,6 +1,6 @@
 import FilmCard from '../view/film-card';
 import {insertDOMElement, Positions} from '../utils/render';
-import {dataSort} from '../modules/data-sort';
+import {dataSort} from '../utils/data-sort';
 import {getAllMovies} from '../modules/data-filters';
 
 const NUMBER_OF_EXTRA_CARDS = 2;

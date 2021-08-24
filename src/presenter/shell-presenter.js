@@ -7,17 +7,17 @@ import UserRankView from '../view/user-rank';
 import FiltersMenu from '../view/filters-menu';
 import SortMenu from '../view/sort-menu';
 import FilmCard from '../view/film-card';
-import {getAllMovies, getWatchedMovies} from '../modules/data-filters';
+import {getWatchedMovies} from '../modules/data-filters';
 import {getMovieById} from '../utils/common';
 import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
 import {updateUserDetails} from '../modules/data-updaters';
-import {dataSort} from '../modules/data-sort';
+import {dataSort} from '../utils/data-sort';
 
 export default class ShellPresenter {
-  constructor(initialData) {
-    this._initialData = initialData;
+  constructor(moviesModel) {
+    this._moviesModel = moviesModel;
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
@@ -44,13 +44,19 @@ export default class ShellPresenter {
   }
 
   init() {
-    this._renderFilmsNumber(this._initialData);
-    this._renderUserRank(this._initialData);
-    this._renderFiltersMenu(this._initialData);
+    this._renderFilmsNumber(this._getMovies());
+    this._renderUserRank(this._getMovies());
+    this._renderFiltersMenu(this._getMovies());
     this._renderSortMenu(this._currentSortOption);
     this._renderFilmsContainers();
-    this._renderFilmsList(this._initialData);
+    this._renderFilmsList(this._getMovies());
     this._renderExtraContainers();
+  }
+
+  _getMovies() {
+    const data = this._moviesModel.getMovies();
+    const option = this._currentSortOption;
+    return dataSort(data, option);
   }
 
   // Рендер поля с количеством фильмов в базе
@@ -91,19 +97,16 @@ export default class ShellPresenter {
     this._PreviousStates.sortMenu = this._sortMenu.getElement();
   }
 
-  _handleSortTypeChange(data, option) {
-    const sortedData = dataSort(data, [option]);
-    this._renderFilmsList(sortedData);
+  _handleSortTypeChange(option) {
+    this._renderFilmsList(this._getMovies());
     this._renderSortMenu(option);
   }
 
   _handleSortMenuClick(evt) {
     const sortOption = evt.target.dataset.sort;
     if (sortOption !== this._currentSortOption) {
-
-      //todo: пока не учитывается выбранный фильтр при сортировке
-      this._handleSortTypeChange(getAllMovies(), sortOption);
       this._currentSortOption = sortOption;
+      this._handleSortTypeChange(sortOption);
     }
   }
 
@@ -111,7 +114,6 @@ export default class ShellPresenter {
   _renderFilmsContainers() {
     this._listsContainer.setClickCallback(this._handleContainerClick);
     insertDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
-
     insertDOMElement(this._listsContainer, this._filmsContainer, Positions.AFTERBEGIN);
     insertDOMElement(this._listsContainer, this._topRatedContainer, Positions.BEFOREEND);
     insertDOMElement(this._listsContainer, this._mostCommentedContainer, Positions.BEFOREEND);
@@ -147,7 +149,7 @@ export default class ShellPresenter {
         evt.target.classList.contains('film-card__comments')
       ) {
         const targetId = +evt.target.closest('article').getAttribute('data-id');
-        const movieItem = getMovieById(getAllMovies(), targetId);
+        const movieItem = getMovieById(this._getMovies(), targetId);
         const filmPopup = new PopupPresenter(movieItem);
         filmPopup.init();
         document.addEventListener('popupClose', this._handlePopupClose);
@@ -160,7 +162,7 @@ export default class ShellPresenter {
         const option = evt.target.getAttribute('data-details');
 
         updateUserDetails(id, option);
-        this._renderFiltersMenu(getAllMovies());
+        this._renderFiltersMenu(this._getMovies());
         this._renderUserRank(getWatchedMovies());
         this._updateAllCardInstances(id);
       }
@@ -175,7 +177,7 @@ export default class ShellPresenter {
   }
 
   _updateMainList(id) {
-    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownMainCards.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[0];
     if (oldCard) {
@@ -185,7 +187,7 @@ export default class ShellPresenter {
   }
 
   _updateTopRated(id) {
-    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownTopRated.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[1];
     if (oldCard) {
@@ -195,7 +197,7 @@ export default class ShellPresenter {
   }
 
   _updateMostCommented(id) {
-    const newCard = new FilmCard(getMovieById(getAllMovies(), id));
+    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownMostCommented.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[2];
     if (oldCard) {
@@ -206,7 +208,7 @@ export default class ShellPresenter {
 
   _handlePopupClose(evt) {
     this._updateAllCardInstances(evt.detail.id);
-    this._renderFiltersMenu(getAllMovies());
+    this._renderFiltersMenu(this._getMovies());
     this._renderUserRank(getWatchedMovies());
     document.removeEventListener('popupClose', this._handlePopupClose);
   }
