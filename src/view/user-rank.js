@@ -1,4 +1,3 @@
-import {getWatchedMovies} from '../modules/data-filters';
 import AbstractView from './abstract-view';
 
 const UserRanks = {
@@ -9,7 +8,7 @@ const UserRanks = {
 };
 
 const createUserRankHtml = (data) => {
-  const watched = getWatchedMovies(data).length;
+  const watched = data.length;
   let userRank;
   if (watched >= 21) {
     userRank = 21;

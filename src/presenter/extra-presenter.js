@@ -1,13 +1,12 @@
 import FilmCard from '../view/film-card';
 import {insertDOMElement, Positions} from '../utils/render';
-import {dataSort} from '../utils/data-sort';
-import {getAllMovies} from '../modules/data-filters';
+import {sortData} from '../utils/sort-data';
 
 const NUMBER_OF_EXTRA_CARDS = 2;
 
 export default class ExtraPresenter {
-  constructor() {
-    this._data = getAllMovies();
+  constructor(data) {
+    this._data = data;
     this._cardsNumberToShow = Math.min(this._data.length, NUMBER_OF_EXTRA_CARDS);
     this._topRatedContainer = document.querySelectorAll('.films-list__container')[1];
     this._mostCommentedContainer = document.querySelectorAll('.films-list__container')[2];
@@ -29,7 +28,7 @@ export default class ExtraPresenter {
   }
 
   _renderTopRated() {
-    const data = dataSort(this._data, 'rating').slice(0, this._cardsNumberToShow);
+    const data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
     data.forEach((dataItem) => {
       const filmCard = new FilmCard(dataItem);
       const {id} = dataItem;
@@ -39,7 +38,7 @@ export default class ExtraPresenter {
   }
 
   _renderMostCommented() {
-    const data = dataSort(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
+    const data = sortData(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
     data.forEach((dataItem) => {
       const filmCard = new FilmCard(dataItem);
       const {id} = dataItem;

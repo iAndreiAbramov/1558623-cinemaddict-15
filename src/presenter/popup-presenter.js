@@ -3,18 +3,19 @@ import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
 import {isEscEvent} from '../utils/common';
-import {updateUserDetails} from '../modules/data-updaters';
-import PopupNewComment from '../view/popup-new-comment';
+import PopupNewCommentAdder from '../view/popup-new-comment-adder';
+import {UpdateType} from '../const';
 
 export default class PopupPresenter {
-  constructor(movieItem) {
+  constructor(movieItem, moviesModel) {
+    this._moviesModel = moviesModel;
     this._movieItem = movieItem;
     this._popup = new Popup(this._movieItem);
     this._popupDOMElement = this._popup.getElement();
     this._closeButton = this._popupDOMElement.querySelector('.film-details__close-btn');
     this._controlsContainer = this._popupDOMElement.querySelector('.film-details__top-container');
     this._commentsContainer = this._popupDOMElement.querySelector('.film-details__comments-list');
-    this._newComment = new PopupNewComment();
+    this._newCommentAdder = new PopupNewCommentAdder();
     this._container = document.body;
     this._comments = this._movieItem.comments;
     this._id = this._movieItem.id;
@@ -24,9 +25,13 @@ export default class PopupPresenter {
         bubbles: true,
         detail: {id: this._id},
       });
+
     this._closePopupByClick = this._closePopupByClick.bind(this);
     this._closePopupByEsc = this._closePopupByEsc.bind(this);
     this._updateControls = this._updateControls.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
+
+    this._moviesModel.addObserver(this._handleModelEvent);
   }
 
   get isOpened() {
@@ -36,6 +41,14 @@ export default class PopupPresenter {
   init() {
     this._show();
     this._isOpened = true;
+  }
+
+  _handleModelEvent(updateType) {
+    switch (updateType) {
+      case 'POPUP_CONTROLS':
+        this._renderControls();
+        break;
+    }
   }
 
   _clear() {
@@ -48,7 +61,7 @@ export default class PopupPresenter {
     this._container.style.overflow = 'hidden';
     this._renderControls();
     this._renderComments();
-    this._renderNewComment();
+    this._renderNewCommentAdder();
     document.addEventListener('keydown', this._closePopupByEsc);
     this._closeButton.addEventListener('click', this._closePopupByClick);
   }
@@ -66,19 +79,33 @@ export default class PopupPresenter {
 
   _updateControls(evt) {
     const option = evt.target.getAttribute('id');
-    updateUserDetails(this._id, option);
-    this._renderControls();
+    this._moviesModel.updateMovie(
+      UpdateType.POPUP_CONTROLS,
+      {id: this._id, option},
+    );
   }
 
   _renderComments() {
+    // console.log(this._comments);
     this._comments.forEach((commentItem) => {
       const comment = new CommentItem(commentItem);
       insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
     });
   }
 
-  _renderNewComment() {
-    insertDOMElement(this._commentsContainer, this._newComment, Positions.AFTEREND);
+  _renderNewCommentAdder() {
+    this._newCommentAdder.setFormSubmitHandler(this._handleCommentAddition);
+    insertDOMElement(this._commentsContainer, this._newCommentAdder, Positions.AFTEREND);
+  }
+
+  _handleCommentAddition(comment) {
+    this._comments.push(comment);
+    this._moviesModel.updateMovie({id: this._id, comments: this._comments});
+    this._renderComments();
+  }
+
+  _handleCommentDeletion() {
+
   }
 
   _closePopupByEsc(keyDownEvt) {

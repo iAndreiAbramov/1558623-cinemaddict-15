@@ -1,9 +1,9 @@
-import {getDurationFromMinutes, reformatDate} from '../utils/date';
+import {getDurationFromMinutes, formatDate} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getPopupHtml = (filmData) => {
   const {id, comments, filmInfo} = filmData;
-  const releaseDate= reformatDate(filmInfo.release.date,'DD MMMM YYYY');
+  const releaseDate= formatDate(filmInfo.release.date,'DD MMMM YYYY');
   const runtime = getDurationFromMinutes(filmInfo.runtime) || '';
   const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
   return `

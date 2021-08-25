@@ -1,10 +1,10 @@
 import {EmotionsImages} from '../mock-data/data-sets';
-import {reformatDateForComments} from '../utils/date';
+import {formatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
-  const relativeDate = reformatDateForComments(date);
+  const relativeDate = formatDateForComments(date);
   return `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">

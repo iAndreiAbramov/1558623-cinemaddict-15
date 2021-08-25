@@ -1,4 +1,5 @@
 import SmartView from './smart';
+import {formatDateForComments} from '../utils/date';
 
 const getPopupNewCommentHtml = (state) => {
   const {emojiSrc, comment} = state;
@@ -37,16 +38,20 @@ const getPopupNewCommentHtml = (state) => {
   `;
 };
 
-export default class PopupNewComment extends SmartView  {
+export default class PopupNewCommentAdder extends SmartView {
   constructor() {
     super();
     this._state = {
-      emojiSrc: '',
+      id: 0,
+      author: 'You',
+      emotion: '',
       comment: '',
+      date: formatDateForComments(new Date()),
     };
 
     this._emojiToggleHandler = this._emojiToggleHandler.bind(this);
     this._textAreaBlurHandler = this._textAreaBlurHandler.bind(this);
+    this._textAreaKeydownHandler = this._textAreaKeydownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
 
     this._setInnerHandlers();
@@ -63,6 +68,9 @@ export default class PopupNewComment extends SmartView  {
     this.getElement()
       .querySelector('.film-details__emoji-list')
       .addEventListener('click', this._emojiToggleHandler);
+    this.getElement()
+      .querySelector('.film-details__comment-input')
+      .addEventListener('keydown', this._textAreaKeydownHandler);
   }
 
   restoreHandlers() {
@@ -78,14 +86,26 @@ export default class PopupNewComment extends SmartView  {
   }
 
   _textAreaBlurHandler(evt) {
-    evt.preventDefault();
     this.updateData({
       comment: evt.target.value,
     });
     this.updateElement();
   }
 
-  _formSubmitHandler() {
+  _textAreaKeydownHandler(evt) {
+    this.updateData({
+      comment: evt.target.value,
+    });
+  }
 
+  _formSubmitHandler(evt) {
+    if (evt.ctrlKey && evt.key === 'Enter') {
+      this._callback.formSubmit(this._state);
+    }
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    document.addEventListener('keydown', this._formSubmitHandler);
   }
 }
