@@ -8,7 +8,9 @@
 
 export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
-  ALL_LISTS_HARD: 'ALL_LISTS_HARD',
+  POPUP_CONTROLS: 'POPUP_CONTROLS',
+  COMMENT: 'COMMENT',
+  // ALL_LISTS_HARD: 'ALL_LISTS_HARD',
 };
 
 export const Filters = {

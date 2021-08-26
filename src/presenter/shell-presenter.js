@@ -6,7 +6,6 @@ import {Positions, insertDOMElement, replaceDOMElement} from '../utils/render';
 import UserRankView from '../view/user-rank';
 import FiltersMenu from '../view/filters-menu';
 import SortMenu from '../view/sort-menu';
-import FilmCard from '../view/film-card';
 import {getMovieById} from '../utils/common';
 import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
@@ -27,12 +26,13 @@ export default class ShellPresenter {
     this._mostCommentedContainer = new ExtraContainer('Most commented');
     this._handlePopupOpen = this._handlePopupOpen.bind(this);
     this._handleCategoryToggle = this._handleCategoryToggle.bind(this);
-    this._handlePopupClose = this._handlePopupClose.bind(this);
+    // this._handlePopupClose = this._handlePopupClose.bind(this);
     this._handleSortMenuClick = this._handleSortMenuClick.bind(this);
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
 
     this._filmListPresenter = null;
+    this._extraPresenter = null;
     this._shownMainCards = null;
     this._shownTopRated = null;
     this._shownMostCommented = null;
@@ -59,22 +59,26 @@ export default class ShellPresenter {
     this._renderExtraContainers();
   }
 
-  _handleModelEvent(updateType, updateBody = {}) {
+  _handleModelEvent(updateType) {
     switch (updateType) {
-      case 'ALL_LISTS_SOFT':
+      case UpdateType.ALL_LISTS_SOFT:
         this._renderFiltersMenu();
         this._renderUserRank();
         this._filmListPresenter.clear();
         this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
-        this._updateAllCardInstances(updateBody.id);
+        this._renderExtraContainers();
         break;
-      case 'ALL_LISTS_HARD':
-        this._renderFiltersMenu();
-        this._renderUserRank();
-        this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
-        this._updateTopRatedCardInstance(updateBody.id);
-        this._updateMostCommentedCardInstance(updateBody.id);
+      case UpdateType.COMMENT:
+        this._filmListPresenter.clear();
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
+        this._renderExtraContainers();
         break;
+      // case 'ALL_LISTS_HARD':
+      //   this._renderFiltersMenu();
+      //   this._renderUserRank();
+      //   this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
+      //   this._renderExtraContainers();
+      //   break;
     }
   }
 
@@ -171,10 +175,14 @@ export default class ShellPresenter {
   }
 
   _renderExtraContainers() {
+    if (this._extraPresenter) {
+      this._extraPresenter.clear();
+    }
     const extraContainers = new ExtraPresenter(this._getMovies());
     extraContainers.init();
     this._shownTopRated = extraContainers.shownTopRated;
     this._shownMostCommented = extraContainers.shownMostCommented;
+    this._extraPresenter = extraContainers;
   }
 
   _handlePopupOpen(evt) {
@@ -183,7 +191,6 @@ export default class ShellPresenter {
       const movieItem = getMovieById(this._getMovies(), targetId);
       const filmPopup = new PopupPresenter(movieItem, this._moviesModel);
       filmPopup.init();
-      document.addEventListener('popupClose', this._handlePopupClose);
       this._PreviousStates.popup = filmPopup;
     }
   }
@@ -193,55 +200,12 @@ export default class ShellPresenter {
       const oldCard = evt.target.closest('article');
       const id = +oldCard.dataset.id;
       const option = evt.target.dataset.details;
-      const renewableMovie = Object.assign(
+      const updatedMovie = Object.assign(
         {},
         getMovieById(this._getMovies(Filters[this._currentFilter]), id),
       );
-      renewableMovie.userDetails[option] = !renewableMovie.userDetails[option];
-      this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, renewableMovie);
+      updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
+      this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, updatedMovie);
     }
-  }
-
-  _updateAllCardInstances(id) {
-    this._updateMainListCardInstance(id);
-    this._updateTopRatedCardInstance(id);
-    this._updateMostCommentedCardInstance(id);
-  }
-
-  _updateMainListCardInstance(id) {
-    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
-    const oldCard = this._shownMainCards.get(id);
-    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[0];
-    if (oldCard) {
-      replaceDOMElement(container, newCard, oldCard);
-      this._shownMainCards.set(id, newCard.getElement());
-    }
-  }
-
-  _updateTopRatedCardInstance(id) {
-    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
-    const oldCard = this._shownTopRated.get(id);
-    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[1];
-    if (oldCard) {
-      replaceDOMElement(container, newCard, oldCard);
-      this._shownTopRated.set(id, newCard.getElement());
-    }
-  }
-
-  _updateMostCommentedCardInstance(id) {
-    const newCard = new FilmCard(getMovieById(this._getMovies(), id));
-    const oldCard = this._shownMostCommented.get(id);
-    const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[2];
-    if (oldCard) {
-      replaceDOMElement(container, newCard, oldCard);
-      this._shownMostCommented.set(id, newCard.getElement());
-    }
-  }
-
-  _handlePopupClose(evt) {
-    this._updateAllCardInstances(evt.detail.id);
-    this._renderFiltersMenu(this._getMovies());
-    this._renderUserRank();
-    document.removeEventListener('popupClose', this._handlePopupClose);
   }
 }

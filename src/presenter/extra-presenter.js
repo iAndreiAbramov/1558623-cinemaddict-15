@@ -27,6 +27,17 @@ export default class ExtraPresenter {
     this._renderMostCommented();
   }
 
+  clear() {
+    this._shownTopRated.forEach((item) => {
+      item.remove();
+    });
+    this._shownTopRated.clear();
+    this._shownMostCommented.forEach((item) => {
+      item.remove();
+    });
+    this._shownMostCommented.clear();
+  }
+
   _renderTopRated() {
     const data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
     data.forEach((dataItem) => {

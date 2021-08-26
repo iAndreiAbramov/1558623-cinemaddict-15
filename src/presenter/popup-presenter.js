@@ -10,25 +10,22 @@ export default class PopupPresenter {
   constructor(movieItem, moviesModel) {
     this._moviesModel = moviesModel;
     this._movieItem = movieItem;
+    this._id = this._movieItem.id;
     this._popup = new Popup(this._movieItem);
     this._popupDOMElement = this._popup.getElement();
     this._closeButton = this._popupDOMElement.querySelector('.film-details__close-btn');
     this._controlsContainer = this._popupDOMElement.querySelector('.film-details__top-container');
     this._commentsContainer = this._popupDOMElement.querySelector('.film-details__comments-list');
     this._newCommentAdder = new PopupNewCommentAdder();
-    this._container = document.body;
     this._comments = this._movieItem.comments;
-    this._id = this._movieItem.id;
+    this._container = document.body;
     this._isOpened = false;
-    this._closeEvent = new CustomEvent(
-      'popupClose', {
-        bubbles: true,
-        detail: {id: this._id},
-      });
+    this._shownComments = new Map();
 
     this._closePopupByClick = this._closePopupByClick.bind(this);
     this._closePopupByEsc = this._closePopupByEsc.bind(this);
-    this._updateControls = this._updateControls.bind(this);
+    this._handleCategoryToggle = this._handleCategoryToggle.bind(this);
+    this._handleCommentAddition = this._handleCommentAddition.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
 
     this._moviesModel.addObserver(this._handleModelEvent);
@@ -45,9 +42,14 @@ export default class PopupPresenter {
 
   _handleModelEvent(updateType) {
     switch (updateType) {
-      case 'POPUP_CONTROLS':
+      case UpdateType.POPUP_CONTROLS:
         this._renderControls();
         break;
+      case UpdateType.COMMENT:
+        console.log(this._comments);
+        this._comments = this._getCommentsFromModel();
+        console.log(this._comments);
+        this._renderComments();
     }
   }
 
@@ -66,9 +68,13 @@ export default class PopupPresenter {
     this._closeButton.addEventListener('click', this._closePopupByClick);
   }
 
+  _getCommentsFromModel() {
+    return this._moviesModel.getComments(this._id);
+  }
+
   _renderControls() {
     const newControls = new PopupControls(this._movieItem);
-    newControls.setClickHandler(this._updateControls);
+    newControls.setClickHandler(this._handleCategoryToggle);
     const oldControls = this._controlsContainer.querySelector('.film-details__controls');
     if (oldControls) {
       replaceDOMElement(this._controlsContainer, newControls, oldControls);
@@ -77,19 +83,25 @@ export default class PopupPresenter {
     }
   }
 
-  _updateControls(evt) {
+  _handleCategoryToggle(evt) {
     const option = evt.target.getAttribute('id');
-    this._moviesModel.updateMovie(
-      UpdateType.POPUP_CONTROLS,
-      {id: this._id, option},
+    const updatedMovie = Object.assign(
+      {},
+      this._movieItem,
     );
+    updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
+    this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, updatedMovie);
+    this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT);
   }
 
   _renderComments() {
-    // console.log(this._comments);
+    this._shownComments.forEach((comment) => {
+      comment.remove();
+    });
     this._comments.forEach((commentItem) => {
       const comment = new CommentItem(commentItem);
       insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
+      this._shownComments.set(commentItem.id, comment.getElement());
     });
   }
 
@@ -99,8 +111,9 @@ export default class PopupPresenter {
   }
 
   _handleCommentAddition(comment) {
-    this._comments.push(comment);
-    this._moviesModel.updateMovie({id: this._id, comments: this._comments});
+    const updatedMovie = Object.assign({}, this._movieItem);
+    updatedMovie.comments.push(comment);
+    this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
     this._renderComments();
   }
 
@@ -122,6 +135,5 @@ export default class PopupPresenter {
     this._clear();
     document.removeEventListener('keydown', this._closePopupByEsc);
     document.body.style.overflow = '';
-    document.dispatchEvent(this._closeEvent);
   }
 }

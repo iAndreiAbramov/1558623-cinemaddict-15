@@ -49,7 +49,7 @@ export default class PopupNewCommentAdder extends SmartView {
       date: formatDateForComments(new Date()),
     };
 
-    this._emojiToggleHandler = this._emojiToggleHandler.bind(this);
+    this._emotionToggleHandler = this._emotionToggleHandler.bind(this);
     this._textAreaBlurHandler = this._textAreaBlurHandler.bind(this);
     this._textAreaKeydownHandler = this._textAreaKeydownHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
@@ -67,7 +67,7 @@ export default class PopupNewCommentAdder extends SmartView {
       .addEventListener('blur', this._textAreaBlurHandler);
     this.getElement()
       .querySelector('.film-details__emoji-list')
-      .addEventListener('click', this._emojiToggleHandler);
+      .addEventListener('click', this._emotionToggleHandler);
     this.getElement()
       .querySelector('.film-details__comment-input')
       .addEventListener('keydown', this._textAreaKeydownHandler);
@@ -77,17 +77,19 @@ export default class PopupNewCommentAdder extends SmartView {
     this._setInnerHandlers();
   }
 
-  _emojiToggleHandler(evt) {
+  _emotionToggleHandler(evt) {
     evt.preventDefault();
+    this._state.emotion = evt.target.getAttribute('src');
     this.updateData({
-      emojiSrc: evt.target.getAttribute('src'),
+      emojiSrc: this._state.emotion,
     });
     this.updateElement();
   }
 
   _textAreaBlurHandler(evt) {
+    this._state.comment = evt.target.value;
     this.updateData({
-      comment: evt.target.value,
+      comment: this._state.comment,
     });
     this.updateElement();
   }
