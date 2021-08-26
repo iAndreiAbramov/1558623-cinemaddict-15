@@ -1,17 +1,14 @@
-export const UserAction = {
-  TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
-  TOGGLE_SORT: 'TOGGLE_SORT',
-  TOGGLE_FILTER: 'TOGGLE_FILTER',
-  ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT',
-};
+// export const UserAction = {
+//   TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
+//   TOGGLE_SORT: 'TOGGLE_SORT',
+//   TOGGLE_FILTER: 'TOGGLE_FILTER',
+//   ADD_COMMENT: 'ADD_COMMENT',
+//   DELETE_COMMENT: 'DELETE_COMMENT',
+// };
 
 export const UpdateType = {
-  POPUP_CONTROLS: 'POPUP_CONTROLS',
-  SINGLE_CARD_INSTANCES_AND_STATS: 'SINGLE_CARD_INSTANCES_AND_STATS',
-  MAIN_LIST: 'MAIN_LIST', // включая кнопку Show more
-  ALL_LISTS: 'ALL_LISTS',
-  COMMENTS: 'COMMENTS',
+  ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
+  ALL_LISTS_HARD: 'ALL_LISTS_HARD',
 };
 
 export const Filters = {
@@ -19,4 +16,10 @@ export const Filters = {
   WATCHLIST: 'watchlist',
   HISTORY: 'alreadyWatched',
   FAVORITE: 'favorite',
+};
+
+export const SortOptions = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
 };

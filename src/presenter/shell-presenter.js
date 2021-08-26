@@ -12,7 +12,7 @@ import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
 import {sortData} from '../utils/sort-data';
-import {Filters, UpdateType} from '../const';
+import {Filters, SortOptions, UpdateType} from '../const';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -32,7 +32,7 @@ export default class ShellPresenter {
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
 
-    this._filmList = null;
+    this._filmListPresenter = null;
     this._shownMainCards = null;
     this._shownTopRated = null;
     this._shownMostCommented = null;
@@ -43,8 +43,8 @@ export default class ShellPresenter {
       popup: null,
     };
 
-    this._currentSortOption = 'default';
-    this._currentFilter = null;
+    this._currentSortOption = SortOptions.DEFAULT;
+    this._currentFilter = Filters.ALL;
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
@@ -61,10 +61,19 @@ export default class ShellPresenter {
 
   _handleModelEvent(updateType, updateBody = {}) {
     switch (updateType) {
-      case 'SINGLE_CARD_INSTANCES_AND_STATS':
+      case 'ALL_LISTS_SOFT':
         this._renderFiltersMenu();
         this._renderUserRank();
+        this._filmListPresenter.clear();
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
         this._updateAllCardInstances(updateBody.id);
+        break;
+      case 'ALL_LISTS_HARD':
+        this._renderFiltersMenu();
+        this._renderUserRank();
+        this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
+        this._updateTopRatedCardInstance(updateBody.id);
+        this._updateMostCommentedCardInstance(updateBody.id);
         break;
     }
   }
@@ -78,13 +87,11 @@ export default class ShellPresenter {
     return sortData(data, option);
   }
 
-  // Рендер поля с количеством фильмов в базе
   _renderFilmsNumber(data) {
     const numberOfFilms = new NumberOfFilms(data);
     insertDOMElement(this._numberOfFilmsContainer, numberOfFilms, Positions.BEFOREEND);
   }
 
-  // Рендер поля ранга пользователя
   _renderUserRank() {
     if (this._PreviousStates.userRank) {
       this._PreviousStates.userRank.remove();
@@ -94,7 +101,6 @@ export default class ShellPresenter {
     insertDOMElement(this._userRankContainer, userRank, Positions.BEFOREEND);
   }
 
-  // Рендер меню фильтров
   _renderFiltersMenu() {
     if (this._PreviousStates.filtersMenu) {
       this._PreviousStates.filtersMenu.remove();
@@ -116,12 +122,13 @@ export default class ShellPresenter {
       return;
     }
     this._currentFilter = filter;
+    this._currentSortOption = SortOptions.DEFAULT;
     this._renderFilmsList(this._getMovies(Filters[filter]));
     this._renderFiltersMenu();
+    this._renderSortMenu();
   }
 
-  // Отрисовка панели сортировки
-  _renderSortMenu(option) {
+  _renderSortMenu(option = 'default') {
     this._sortMenu = new SortMenu(option);
     this._sortMenu.setClickCallback(this._handleSortMenuClick);
     if (this._PreviousStates.sortMenu) {
@@ -133,7 +140,7 @@ export default class ShellPresenter {
   }
 
   _handleSortTypeChange(option) {
-    this._renderFilmsList(this._getMovies(this._currentFilter));
+    this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
     this._renderSortMenu(option);
   }
 
@@ -145,7 +152,6 @@ export default class ShellPresenter {
     }
   }
 
-  // отрисовка основного и дополнительных контейнеров
   _renderFilmsContainers() {
     this._listsContainer.setPopupOpenCallback(this._handlePopupOpen);
     this._listsContainer.setCategoryToggleCallback(this._handleCategoryToggle);
@@ -155,17 +161,15 @@ export default class ShellPresenter {
     insertDOMElement(this._listsContainer, this._mostCommentedContainer, Positions.BEFOREEND);
   }
 
-  // Перерисовка списка фильмов
   _renderFilmsList(data) {
-    if (this._filmList) {
-      this._filmList.clear();
+    if (this._filmListPresenter) {
+      this._filmListPresenter.clear();
     }
-    this._filmList = new FilmsListPresenter(data);
-    this._filmList.init();
-    this._shownMainCards = this._filmList.shownCards;
+    this._filmListPresenter = new FilmsListPresenter(data);
+    this._filmListPresenter.init();
+    this._shownMainCards = this._filmListPresenter.shownCards;
   }
 
-  // Обновление данных в доп. контейнерах
   _renderExtraContainers() {
     const extraContainers = new ExtraPresenter(this._getMovies());
     extraContainers.init();
@@ -187,29 +191,24 @@ export default class ShellPresenter {
   _handleCategoryToggle(evt) {
     if (!this._PreviousStates.popup || !this._PreviousStates.popup.isOpened) {
       const oldCard = evt.target.closest('article');
-      const id = +oldCard.getAttribute('data-id');
-      const option = evt.target.getAttribute('data-details');
-
-      this._moviesModel.updateMovie(
-        UpdateType.SINGLE_CARD_INSTANCES_AND_STATS,
-        {id, option},
+      const id = +oldCard.dataset.id;
+      const option = evt.target.dataset.details;
+      const renewableMovie = Object.assign(
+        {},
+        getMovieById(this._getMovies(Filters[this._currentFilter]), id),
       );
-
+      renewableMovie.userDetails[option] = !renewableMovie.userDetails[option];
+      this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, renewableMovie);
     }
   }
 
-  // Обновление данных одной карточки во всех местах, где она отображается
   _updateAllCardInstances(id) {
-    if (this._currentFilter === null) {
-      this._updateMainList(id);
-    } else {
-      this._renderFilmsList(this._getMovies(this._currentFilter));
-    }
-    this._updateTopRated(id);
-    this._updateMostCommented(id);
+    this._updateMainListCardInstance(id);
+    this._updateTopRatedCardInstance(id);
+    this._updateMostCommentedCardInstance(id);
   }
 
-  _updateMainList(id) {
+  _updateMainListCardInstance(id) {
     const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownMainCards.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[0];
@@ -219,7 +218,7 @@ export default class ShellPresenter {
     }
   }
 
-  _updateTopRated(id) {
+  _updateTopRatedCardInstance(id) {
     const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownTopRated.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[1];
@@ -229,7 +228,7 @@ export default class ShellPresenter {
     }
   }
 
-  _updateMostCommented(id) {
+  _updateMostCommentedCardInstance(id) {
     const newCard = new FilmCard(getMovieById(this._getMovies(), id));
     const oldCard = this._shownMostCommented.get(id);
     const container = this._listsContainer.getElement().querySelectorAll('.films-list__container')[2];

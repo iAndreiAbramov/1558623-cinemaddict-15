@@ -21,19 +21,9 @@ export default class Movies extends AbstractObserver {
       throw new Error(`Update error. Item with index ${updateBody.id} does not exist`);
     }
 
-    const movieData = this._movies[movieIndex];
-
-    if (updateBody.option) {
-      movieData.userDetails[updateBody.option] = !movieData.userDetails[updateBody.option];
-    }
-
-    if (updateBody.comments) {
-      movieData.comments = updateBody.comments;
-    }
-
     this._movies = [
       ...this._movies.slice(0, movieIndex),
-      movieData,
+      updateBody,
       ...this._movies.slice(movieIndex + 1),
     ];
 

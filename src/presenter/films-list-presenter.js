@@ -14,7 +14,14 @@ export default class FilmsListPresenter {
     this._shownCards = new Map();
     this._initialCardsNumber = Math.min(DEFAULT_CARDS_NUMBER, data.length);
     this._cardsCountStep = CARDS_COUNT_STEP;
+    this._messageElement = null;
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
+
+    this._state = {
+      cardsShown: 0,
+      moreButtonShown: false,
+      messageShown: false,
+    };
   }
 
   get shownCards() {
@@ -22,7 +29,8 @@ export default class FilmsListPresenter {
   }
 
   init() {
-    this._renderDefault(this._data);
+    this.clear();
+    this.renderDefault(this._data);
   }
 
   clear() {
@@ -31,16 +39,19 @@ export default class FilmsListPresenter {
     });
     this._shownCards.clear();
     this._showMoreButton.getElement().remove();
+    if (this._messageElement) {
+      this._messageElement.remove();
+    }
   }
 
-  _renderDefault(data) {
+  renderDefault(data) {
+    const cardsToShow = Math.max(this._state.cardsShown, this._initialCardsNumber);
     if (data.length > 0) {
-      this._render(data, this._shownCards.size, this._initialCardsNumber);
+      this._render(data, 0, cardsToShow);
     } else {
       this._renderEmpty();
     }
-
-    if (this._data.length > DEFAULT_CARDS_NUMBER) {
+    if (data.length > cardsToShow) {
       this._showMoreButton.setClickHandler(this._handleMoreButtonClick);
       insertDOMElement(this._container, this._showMoreButton, Positions.AFTEREND);
     }
@@ -54,6 +65,7 @@ export default class FilmsListPresenter {
       insertDOMElement(this._container, filmCard, Positions.BEFOREEND);
       this._shownCards.set(id, filmCard.getElement());
     });
+    this._state.cardsShown = this._shownCards.size;
   }
 
   _renderEmpty() {
@@ -68,19 +80,22 @@ export default class FilmsListPresenter {
     };
 
     const getMessageOption = () => {
+      if (this._messageElement) {
+        this._messageElement.remove();
+      }
       const activeFilterElement = document.querySelector('.main-navigation__item--active');
       return activeFilterElement.getAttribute('href');
     };
-
     const message = getMessageForEmpty(getMessageOption());
     const messageElement = new MessageForEmptyList(message);
+    this._messageElement = messageElement.getElement();
     insertDOMElement(this._container, messageElement, Positions.AFTERBEGIN);
   }
 
   _handleMoreButtonClick() {
     const cardsNumberToShow = Math.min(this._shownCards.size + this._cardsCountStep, this._data.length);
 
-    this._render(this._data, this._shownCards.size, cardsNumberToShow);
+    this._render(this._data, this._state.cardsShown, cardsNumberToShow);
 
     if (this._shownCards.size === this._data.length) {
       this._showMoreButton.getElement().remove();
