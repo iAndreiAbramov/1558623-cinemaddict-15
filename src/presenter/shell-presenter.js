@@ -26,7 +26,6 @@ export default class ShellPresenter {
     this._mostCommentedContainer = new ExtraContainer('Most commented');
     this._handlePopupOpen = this._handlePopupOpen.bind(this);
     this._handleCategoryToggle = this._handleCategoryToggle.bind(this);
-    // this._handlePopupClose = this._handlePopupClose.bind(this);
     this._handleSortMenuClick = this._handleSortMenuClick.bind(this);
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);

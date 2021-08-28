@@ -2,9 +2,11 @@ import Popup from '../view/popup';
 import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
-import {isEscEvent} from '../utils/common';
-import PopupNewCommentAdder from '../view/popup-new-comment-adder';
+import {getRandomInteger, isEscEvent} from '../utils/common';
+import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
+
+const COMMENTS_DELETION_COUNT = 1;
 
 export default class PopupPresenter {
   constructor(movieItem, moviesModel) {
@@ -16,17 +18,20 @@ export default class PopupPresenter {
     this._closeButton = this._popupDOMElement.querySelector('.film-details__close-btn');
     this._controlsContainer = this._popupDOMElement.querySelector('.film-details__top-container');
     this._commentsContainer = this._popupDOMElement.querySelector('.film-details__comments-list');
-    this._newCommentAdder = new PopupNewCommentAdder();
+    this._commentsNumber = this._popupDOMElement.querySelector('.film-details__comments-count');
     this._comments = this._movieItem.comments;
+    this._newCommentForm = null;
     this._container = document.body;
     this._isOpened = false;
     this._shownComments = new Map();
 
     this._closePopupByClick = this._closePopupByClick.bind(this);
-    this._closePopupByEsc = this._closePopupByEsc.bind(this);
+    this._handleEscKeydown = this._handleEscKeydown.bind(this);
     this._handleCategoryToggle = this._handleCategoryToggle.bind(this);
     this._handleCommentAddition = this._handleCommentAddition.bind(this);
+    this._handleCommentDeletion = this._handleCommentDeletion.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
@@ -46,16 +51,18 @@ export default class PopupPresenter {
         this._renderControls();
         break;
       case UpdateType.COMMENT:
-        console.log(this._comments);
         this._comments = this._getCommentsFromModel();
-        console.log(this._comments);
         this._renderComments();
+        this._updateNewCommentForm();
     }
   }
 
   _clear() {
     this._popupDOMElement.remove();
     this._isOpened = false;
+    this._comments = [];
+    this._shownComments.clear();
+    document.removeEventListener('keydown', this._handleFormSubmit);
   }
 
   _show() {
@@ -63,9 +70,10 @@ export default class PopupPresenter {
     this._container.style.overflow = 'hidden';
     this._renderControls();
     this._renderComments();
-    this._renderNewCommentAdder();
-    document.addEventListener('keydown', this._closePopupByEsc);
+    this._renderNewComment();
+    document.addEventListener('keydown', this._handleEscKeydown);
     this._closeButton.addEventListener('click', this._closePopupByClick);
+    document.addEventListener('keydown', this._handleFormSubmit);
   }
 
   _getCommentsFromModel() {
@@ -92,36 +100,65 @@ export default class PopupPresenter {
     updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
     this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, updatedMovie);
     this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT);
+    this._movieItem = updatedMovie;
   }
 
   _renderComments() {
     this._shownComments.forEach((comment) => {
       comment.remove();
     });
+    this._shownComments.clear();
+    this._comments = this._getCommentsFromModel();
+    this._commentsNumber.textContent = this._comments.length;
     this._comments.forEach((commentItem) => {
       const comment = new CommentItem(commentItem);
+      comment.setCommentDeleteCallback(this._handleCommentDeletion);
       insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
       this._shownComments.set(commentItem.id, comment.getElement());
     });
   }
 
-  _renderNewCommentAdder() {
-    this._newCommentAdder.setFormSubmitHandler(this._handleCommentAddition);
-    insertDOMElement(this._commentsContainer, this._newCommentAdder, Positions.AFTEREND);
+  _renderNewComment() {
+    this._newCommentForm = new PopupNewCommentForm();
+    insertDOMElement(this._commentsContainer, this._newCommentForm, Positions.AFTEREND);
+  }
+
+  _updateNewCommentForm() {
+    this._newCommentForm.updateElement().remove();
+    this._renderNewComment();
+  }
+
+  _handleFormSubmit(evt) {
+    if (evt.ctrlKey && evt.key === 'Enter') {
+      const update = {
+        date: new Date(),
+      };
+      if (!this._newCommentForm.state.id) {
+        update.id = getRandomInteger(10000, 10000000);
+      }
+      if (!this._newCommentForm.state.comment) {
+        update.comment = 'I have no words...';
+      }
+      this._newCommentForm.updateState(update);
+      this._handleCommentAddition(this._newCommentForm.state);
+    }
   }
 
   _handleCommentAddition(comment) {
     const updatedMovie = Object.assign({}, this._movieItem);
     updatedMovie.comments.push(comment);
     this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
-    this._renderComments();
+    this._movieItem = updatedMovie;
   }
 
-  _handleCommentDeletion() {
-
+  _handleCommentDeletion(id) {
+    const updatedMovie = Object.assign({}, this._movieItem);
+    const index = updatedMovie.comments.findIndex((item) => +item.id === +id);
+    updatedMovie.comments.splice(index, COMMENTS_DELETION_COUNT);
+    this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
   }
 
-  _closePopupByEsc(keyDownEvt) {
+  _handleEscKeydown(keyDownEvt) {
     if (isEscEvent(keyDownEvt)) {
       this._closePopup();
     }
@@ -133,7 +170,7 @@ export default class PopupPresenter {
 
   _closePopup() {
     this._clear();
-    document.removeEventListener('keydown', this._closePopupByEsc);
+    document.removeEventListener('keydown', this._handleEscKeydown);
     document.body.style.overflow = '';
   }
 }
