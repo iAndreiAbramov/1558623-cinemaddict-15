@@ -201,7 +201,7 @@ export default class ShellPresenter {
       const option = evt.target.dataset.details;
       const updatedMovie = Object.assign(
         {},
-        getMovieById(this._getMovies(Filters[this._currentFilter]), id),
+        getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
       this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, updatedMovie);
