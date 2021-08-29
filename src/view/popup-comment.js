@@ -1,10 +1,10 @@
 import {EmotionsImages} from '../mock-data/data-sets';
-import {reformatDateForComments} from '../utils/date';
+import {formatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
 
 const getCommentItemHtml = (commentDataItem) => {
   const {author, comment, date, emotion} = commentDataItem;
-  const relativeDate = reformatDateForComments(date);
+  const relativeDate = formatDateForComments(date);
   return `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -26,9 +26,23 @@ export default class CommentItem extends AbstractView {
   constructor(commentDataItem) {
     super();
     this._commentdataItem = commentDataItem;
+    this._commentDeleteCallback = this._commentDeleteCallback.bind(this);
   }
 
   getTemplate() {
     return getCommentItemHtml(this._commentdataItem);
+  }
+
+  _commentDeleteCallback(evt) {
+    evt.preventDefault();
+    this._callback.commentDelete(this._commentdataItem.id);
+  }
+
+  setCommentDeleteCallback(callback) {
+    this._callback.commentDelete = callback;
+    this
+      .getElement()
+      .querySelector('.film-details__comment-delete')
+      .addEventListener('click', this._commentDeleteCallback);
   }
 }

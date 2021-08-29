@@ -7,7 +7,11 @@ export default class SmartView extends AbstractView {
     this._state = {};
   }
 
-  updateData(update) {
+  get state() {
+    return this._state;
+  }
+
+  updateState(update) {
     if (!update) {
       return;
     }
@@ -18,14 +22,26 @@ export default class SmartView extends AbstractView {
     );
   }
 
+  resetState() {
+    const update = {
+      id: 0,
+      author: 'You',
+      emotion: 'smile',
+      comment: '',
+      date: '',
+    };
+    this.updateState(update);
+  }
+
   updateElement() {
     const oldElement = this.getElement();
     const container = oldElement.parentElement;
     this.deleteElement();
 
+    this.restoreHandlers();
     const newElement = this.getElement();
     replaceDOMElement(container, newElement, oldElement);
-    this.restoreHandlers();
+    return newElement;
   }
 
   restoreHandlers() {

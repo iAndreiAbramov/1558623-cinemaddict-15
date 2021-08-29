@@ -6,7 +6,7 @@ const sortByCommentsNumber = (filmsData) => filmsData.slice().sort((a, b) => b.c
 
 const sortByDate = (filmsData) => filmsData.slice().sort((a, b) => dayjs(b.filmInfo.release.date).diff(dayjs(a.filmInfo.release.date), 'ms'));
 
-export const dataSort = (data, option = 'default') => {
+export const sortData = (data, option = 'default') => {
   const SortOptions = {
     'default': data,
     'commentsNumber': sortByCommentsNumber(data),

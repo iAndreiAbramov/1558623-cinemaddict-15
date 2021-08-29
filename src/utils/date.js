@@ -16,9 +16,9 @@ export const getRandomDate = () => {
   return dayjs(day);
 };
 
-export const reformatDate = (date, format) => dayjs(date).format(format);
+export const formatDate = (date, format) => dayjs(date).format(format);
 
-export const reformatDateForComments = (date) => dayjs(date).fromNow();
+export const formatDateForComments = (date) => dayjs(date).fromNow();
 
 export const getDurationFromMinutes = (durationInMinutes) => {
   const lasting = dayjs.duration(durationInMinutes, 'minutes');
