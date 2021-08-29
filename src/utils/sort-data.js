@@ -4,14 +4,16 @@ const sortByRating = (filmsData) => filmsData.slice().sort((a, b) => b.filmInfo.
 
 const sortByCommentsNumber = (filmsData) => filmsData.slice().sort((a, b) => b.comments.length - a.comments.length);
 
-const sortByDate = (filmsData) => filmsData.slice().sort((a, b) => dayjs(b.filmInfo.release.date).diff(dayjs(a.filmInfo.release.date), 'ms'));
+const sortMoviesByDate = (filmsData) => filmsData.slice().sort((a, b) => dayjs(b.filmInfo.release.date).diff(dayjs(a.filmInfo.release.date), 'ms'));
+
+export const sortCommentsByDate = (comments) => comments.slice().sort((a, b) => dayjs(a.date).diff(dayjs(b.date), 'ms'));
 
 export const sortData = (data, option = 'default') => {
   const SortOptions = {
     'default': data,
     'commentsNumber': sortByCommentsNumber(data),
     'rating': sortByRating(data),
-    'date': sortByDate(data),
+    'date': sortMoviesByDate(data),
   };
   return SortOptions[option];
 };
