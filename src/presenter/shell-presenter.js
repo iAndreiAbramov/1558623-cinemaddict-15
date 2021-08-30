@@ -100,20 +100,19 @@ export default class ShellPresenter {
     this._currentMenuOption = evt.target.dataset.option;
     this._stats.getElement().remove();
     this._renderFiltersMenu();
-    this._renderSortMenu(this._currentSortOption);
+    this._renderSortMenu();
     this._renderFilmsContainers();
-    this._renderFilmsList(this._getMovies());
+    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
     this._renderExtraContainers();
     this._currentScreen = Screens.FILMS;
   }
 
   _destroyListsAndSort() {
     this._sortMenu.getElement().remove();
-    // this._sortMenu.deleteElement();
     this._filmListPresenter.clear();
     this._extraPresenter.clear();
     this._listsContainer.getElement().remove();
-    // this._listsContainer.deleteElement();
+    this._listsContainer = null;
   }
 
   _getMovies(filter = null) {
