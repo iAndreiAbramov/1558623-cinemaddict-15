@@ -14,6 +14,7 @@ import {sortData} from '../utils/sort-data';
 import {Filters, SortOptions, UpdateType, Screens} from '../const';
 import Stats from '../view/stats';
 import ChartView from '../view/chart';
+import {ChartOptions} from '../const';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -74,12 +75,6 @@ export default class ShellPresenter {
         this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
-      // case 'ALL_LISTS_HARD':
-      //   this._renderFiltersMenu();
-      //   this._renderUserRank();
-      //   this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
-      //   this._renderExtraContainers();
-      //   break;
     }
   }
 
@@ -101,8 +96,9 @@ export default class ShellPresenter {
   }
 
   _renderChart() {
-    this._chart = new ChartView(this._getMovies(Filters.HISTORY));
+    this._chart = new ChartView(this._getMovies(Filters.HISTORY), ChartOptions);
     insertDOMElement(this._stats.getElement(), this._chart, Positions.BEFOREEND);
+    this._chart.render();
   }
 
   _handleSwitchToFilms(evt) {

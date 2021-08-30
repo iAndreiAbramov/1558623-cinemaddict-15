@@ -38,9 +38,10 @@ export const ChartOptions = {
   plugins: [ChartDataLabels],
   type: 'horizontalBar',
   data: {
-    labels: ['Sci-Fi', 'Animation', 'Fantasy', 'Comedy', 'TV Series'],
+    labels: null,
     datasets: [{
-      data: [11, 8, 7, 4, 3],
+      barThickness: 24,
+      data: null,
       backgroundColor: '#ffe800',
       hoverBackgroundColor: '#ffe800',
       anchor: 'start',
@@ -69,7 +70,6 @@ export const ChartOptions = {
           display: false,
           drawBorder: false,
         },
-        barThickness: 24,
       }],
       xAxes: [{
         ticks: {
