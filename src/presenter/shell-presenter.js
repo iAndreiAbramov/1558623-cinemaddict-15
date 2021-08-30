@@ -13,6 +13,7 @@ import PopupPresenter from './popup-presenter';
 import {sortData} from '../utils/sort-data';
 import {Filters, SortOptions, UpdateType, Screens} from '../const';
 import Stats from '../view/stats';
+import ChartView from '../view/chart';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -94,12 +95,14 @@ export default class ShellPresenter {
       this._destroyListsAndSort();
       this._renderFiltersMenu();
       this._renderStats();
+      this._renderChart();
       this._currentScreen = Screens.STATS;
     }
   }
 
   _renderChart() {
-
+    this._chart = new ChartView(this._getMovies(Filters.HISTORY));
+    insertDOMElement(this._stats.getElement(), this._chart, Positions.BEFOREEND);
   }
 
   _handleSwitchToFilms(evt) {

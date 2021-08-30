@@ -1,5 +1,5 @@
 import ShellPresenter from './presenter/shell-presenter';
-import {getAllMovies} from './modules/data-filters';
+import {getAllMovies} from './utils/data-filters';
 import Movies from './model/movies';
 
 document.addEventListener('DOMContentLoaded', () => {

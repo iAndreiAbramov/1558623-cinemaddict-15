@@ -1,7 +1,8 @@
 import AbstractView from './abstract-view';
 import dayjs from 'dayjs';
 import {getTotalDuration} from '../utils/date';
-import {getGenresList, getTopGenre} from '../utils/common';
+import {getTopGenre} from '../utils/common';
+
 
 const getStatsHTML = (watchedMovies, userRank) => {
   const totalHours = dayjs.duration(getTotalDuration(watchedMovies), 'minutes').hours();
@@ -49,9 +50,7 @@ const getStatsHTML = (watchedMovies, userRank) => {
                       </li>` : ''}
       </ul>
 
-      <div class="statistic__chart-wrap">
-        <canvas class="statistic__chart" width="1000"></canvas>
-      </div>
+
 
     </section>
 `;
