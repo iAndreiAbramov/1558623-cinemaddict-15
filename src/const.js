@@ -9,6 +9,7 @@ export const Filters = {
   WATCHLIST: 'watchlist',
   HISTORY: 'alreadyWatched',
   FAVORITE: 'favorite',
+  STATS: 'stats',
 };
 
 export const SortOptions = {

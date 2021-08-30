@@ -12,6 +12,7 @@ import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
 import {sortData} from '../utils/sort-data';
 import {Filters, SortOptions, UpdateType} from '../const';
+import Stats from '../view/stats';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -19,8 +20,7 @@ export default class ShellPresenter {
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
-    this._sortMenu = null;
-    this._listsContainer = new ListsContainer();
+
     this._filmsContainer = new FilmsListContainer();
     this._topRatedContainer = new ExtraContainer('Top rated');
     this._mostCommentedContainer = new ExtraContainer('Most commented');
@@ -29,18 +29,17 @@ export default class ShellPresenter {
     this._handleSortMenuClick = this._handleSortMenuClick.bind(this);
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._handleSwitchToStats = this._handleSwitchToStats.bind(this);
 
     this._filmListPresenter = null;
     this._extraPresenter = null;
-    this._shownMainCards = null;
-    this._shownTopRated = null;
-    this._shownMostCommented = null;
-    this._PreviousStates = {
-      userRank: null,
-      filtersMenu: null,
-      sortMenu: null,
-      popup: null,
-    };
+
+    this._listsContainer = null;
+    this.userRank = null;
+    this._filtersMenu = null;
+    this._sortMenu = null;
+    this._popup = null;
+    this._stats = null;
 
     this._currentSortOption = SortOptions.DEFAULT;
     this._currentFilter = Filters.ALL;
@@ -81,6 +80,25 @@ export default class ShellPresenter {
     }
   }
 
+  _renderStats() {
+    this._stats = new Stats();
+    insertDOMElement(this._filtersMenu, this._stats, Positions.AFTEREND);
+  }
+
+  _handleSwitchToStats(evt) {
+    this._currentFilter = evt.target.dataset.option;
+    this._destroyListsAndSort();
+    this._renderStats();
+    this._renderFiltersMenu();
+  }
+
+  _destroyListsAndSort() {
+    this._sortMenu.getElement().remove();
+    this._sortMenu.deleteElement();
+    this._listsContainer.getElement().remove();
+    this._listsContainer.deleteElement();
+  }
+
   _getMovies(filter = null) {
     let data = this._moviesModel.getMovies();
     if (filter) {
@@ -96,17 +114,17 @@ export default class ShellPresenter {
   }
 
   _renderUserRank() {
-    if (this._PreviousStates.userRank) {
-      this._PreviousStates.userRank.remove();
+    if (this.userRank) {
+      this.userRank.remove();
     }
     const userRank = new UserRankView(this._getMovies(Filters.HISTORY));
-    this._PreviousStates.userRank = userRank.getElement();
+    this.userRank = userRank.getElement();
     insertDOMElement(this._userRankContainer, userRank, Positions.BEFOREEND);
   }
 
   _renderFiltersMenu() {
-    if (this._PreviousStates.filtersMenu) {
-      this._PreviousStates.filtersMenu.remove();
+    if (this._filtersMenu) {
+      this._filtersMenu.remove();
     }
     const filtersData = {
       watchlist: this._getMovies(Filters.WATCHLIST),
@@ -114,13 +132,15 @@ export default class ShellPresenter {
       favorite: this._getMovies(Filters.FAVORITE),
     };
     const filtersMenu = new FiltersMenu(filtersData, Filters[this._currentFilter] || null);
-    filtersMenu.setClickCallback(this._handleFilterChange);
-    this._PreviousStates.filtersMenu = filtersMenu.getElement();
+    filtersMenu.setFilterToggleCallback(this._handleFilterChange);
+    filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
+    this._filtersMenu = filtersMenu.getElement();
     insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
   }
 
   _handleFilterChange(evt) {
-    const filter = evt.target.dataset.filter;
+    this._renderFilmsContainers();
+    const filter = evt.target.dataset.option;
     if (this._currentFilter === filter) {
       return;
     }
@@ -134,12 +154,12 @@ export default class ShellPresenter {
   _renderSortMenu(option = 'default') {
     this._sortMenu = new SortMenu(option);
     this._sortMenu.setClickCallback(this._handleSortMenuClick);
-    if (this._PreviousStates.sortMenu) {
-      replaceDOMElement(this._mainContainer, this._sortMenu, this._PreviousStates.sortMenu);
+    if (this.sortMenu) {
+      replaceDOMElement(this._mainContainer, this._sortMenu, this.sortMenu);
     } else {
       insertDOMElement(this._mainContainer, this._sortMenu, Positions.BEFOREEND);
     }
-    this._PreviousStates.sortMenu = this._sortMenu.getElement();
+    this.sortMenu = this._sortMenu.getElement();
   }
 
   _handleSortTypeChange(option) {
@@ -156,6 +176,10 @@ export default class ShellPresenter {
   }
 
   _renderFilmsContainers() {
+    if (this._listsContainer) {
+      return;
+    }
+    this._listsContainer = new ListsContainer();
     this._listsContainer.setPopupOpenCallback(this._handlePopupOpen);
     this._listsContainer.setCategoryToggleCallback(this._handleCategoryToggle);
     insertDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
@@ -185,17 +209,17 @@ export default class ShellPresenter {
   }
 
   _handlePopupOpen(evt) {
-    if (!this._PreviousStates.popup || !this._PreviousStates.popup.isOpened) {
+    if (!this._popup || !this._popup.isOpened) {
       const targetId = +evt.target.closest('article').getAttribute('data-id');
       const movieItem = getMovieById(this._getMovies(), targetId);
       const filmPopup = new PopupPresenter(movieItem, this._moviesModel);
       filmPopup.init();
-      this._PreviousStates.popup = filmPopup;
+      this._popup = filmPopup;
     }
   }
 
   _handleCategoryToggle(evt) {
-    if (!this._PreviousStates.popup || !this._PreviousStates.popup.isOpened) {
+    if (!this._popup || !this._popup.isOpened) {
       const oldCard = evt.target.closest('article');
       const id = +oldCard.dataset.id;
       const option = evt.target.dataset.details;
