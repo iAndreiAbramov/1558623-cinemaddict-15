@@ -159,20 +159,6 @@ export default class ShellPresenter {
     insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
   }
 
-  _handleFilterChange(evt) {
-    this._renderFilmsContainers();
-    this._currentScreen = evt.target.dataset.screen;
-    const filter = evt.target.dataset.option;
-    if (this._currentMenuOption === filter) {
-      return;
-    }
-    this._currentMenuOption = filter;
-    this._currentSortOption = SortOptions.DEFAULT;
-    this._renderFilmsList(this._getMovies(Filters[filter]));
-    this._renderFiltersMenu();
-    this._renderSortMenu();
-  }
-
   _renderSortMenu(option = 'default') {
     if (this._sortMenu) {
       this._sortMenu.getElement().remove();
@@ -180,19 +166,6 @@ export default class ShellPresenter {
     this._sortMenu = new SortMenu(option);
     this._sortMenu.setClickCallback(this._handleSortMenuClick);
     insertDOMElement(this._filtersMenu, this._sortMenu.getElement(), Positions.AFTEREND);
-  }
-
-  _handleSortTypeChange(option) {
-    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
-    this._renderSortMenu(option);
-  }
-
-  _handleSortMenuClick(evt) {
-    const sortOption = evt.target.dataset.sort;
-    if (sortOption !== this._currentSortOption) {
-      this._currentSortOption = sortOption;
-      this._handleSortTypeChange(sortOption);
-    }
   }
 
   _renderFilmsContainers() {
@@ -223,6 +196,33 @@ export default class ShellPresenter {
     const extraContainers = new ExtraPresenter(this._getMovies());
     extraContainers.init();
     this._extraPresenter = extraContainers;
+  }
+
+  _handleSortTypeChange(option) {
+    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
+    this._renderSortMenu(option);
+  }
+
+  _handleFilterChange(evt) {
+    this._renderFilmsContainers();
+    this._currentScreen = evt.target.dataset.screen;
+    const filter = evt.target.dataset.option;
+    if (this._currentMenuOption === filter) {
+      return;
+    }
+    this._currentMenuOption = filter;
+    this._currentSortOption = SortOptions.DEFAULT;
+    this._renderFilmsList(this._getMovies(Filters[filter]));
+    this._renderFiltersMenu();
+    this._renderSortMenu();
+  }
+
+  _handleSortMenuClick(evt) {
+    const sortOption = evt.target.dataset.sort;
+    if (sortOption !== this._currentSortOption) {
+      this._currentSortOption = sortOption;
+      this._handleSortTypeChange(sortOption);
+    }
   }
 
   _handlePopupOpen(evt) {
