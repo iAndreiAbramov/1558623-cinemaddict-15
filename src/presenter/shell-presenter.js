@@ -36,7 +36,7 @@ export default class ShellPresenter {
     this._extraPresenter = null;
 
     this._listsContainer = null;
-    this.userRank = null;
+    this._userRank = null;
     this._filtersMenu = null;
     this._sortMenu = null;
     this._popup = null;
@@ -83,17 +83,23 @@ export default class ShellPresenter {
   }
 
   _renderStats() {
-    this._stats = new Stats();
+    this._stats = new Stats(this._getMovies(Filters.HISTORY), this._userRank.rank);
     insertDOMElement(this._filtersMenu, this._stats, Positions.AFTEREND);
   }
 
   _handleSwitchToStats(evt) {
-    this._currentMenuOption = evt.target.dataset.option;
-    this._currentScreen = evt.target.dataset.screen;
-    this._destroyListsAndSort();
-    this._renderFiltersMenu();
-    this._renderStats();
-    this._currentScreen = Screens.STATS;
+    if (this._currentScreen !== Screens.STATS) {
+      this._currentMenuOption = evt.target.dataset.option;
+      this._currentScreen = evt.target.dataset.screen;
+      this._destroyListsAndSort();
+      this._renderFiltersMenu();
+      this._renderStats();
+      this._currentScreen = Screens.STATS;
+    }
+  }
+
+  _renderChart() {
+
   }
 
   _handleSwitchToFilms(evt) {
@@ -130,12 +136,11 @@ export default class ShellPresenter {
   }
 
   _renderUserRank() {
-    if (this.userRank) {
-      this.userRank.remove();
+    if (this._userRank) {
+      this._userRank.getElement().remove();
     }
-    const userRank = new UserRankView(this._getMovies(Filters.HISTORY));
-    this.userRank = userRank.getElement();
-    insertDOMElement(this._userRankContainer, userRank, Positions.BEFOREEND);
+    this._userRank = new UserRankView(this._getMovies(Filters.HISTORY));
+    insertDOMElement(this._userRankContainer, this._userRank, Positions.BEFOREEND);
   }
 
   _renderFiltersMenu() {

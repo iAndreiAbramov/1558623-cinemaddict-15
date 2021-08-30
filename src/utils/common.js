@@ -34,6 +34,32 @@ export const getShortDescription = (description, maxLength) => {
   return description;
 };
 
+export const getGenresList = (arrayOfMovies) => {
+  if (arrayOfMovies.length === 0) {
+    return null;
+  }
+  const genresList = {};
+  arrayOfMovies.forEach((movie) => {
+    const movieGenres = movie.filmInfo.genre.trim().split(' ').filter((item) => item !== ' ');
+    movieGenres.forEach((genre) => {
+      if (genre in genresList) {
+        genresList[genre]++;
+      } else {
+        genresList[genre] = 0;
+      }
+    });
+  });
+  return genresList;
+};
+
+export const getTopGenre = (arrayOfMovies) => {
+  if (arrayOfMovies.length === 0) {
+    return null;
+  }
+  const genresList = getGenresList(arrayOfMovies);
+  return Object.entries(genresList).sort((a, b) => b[1] - a[1])[0][0];
+};
+
 export const getMovieById = (arrayOfMovies, identifier) => arrayOfMovies.find((item) => +item.id === +identifier);
 
 export const getMovieIndexById = (arrayOfMovies, identifier) => arrayOfMovies.findIndex((item) => +item.id === +identifier);

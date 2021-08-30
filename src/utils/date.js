@@ -24,3 +24,5 @@ export const getDurationFromMinutes = (durationInMinutes) => {
   const lasting = dayjs.duration(durationInMinutes, 'minutes');
   return `${lasting.hours()}h ${lasting.minutes()}m`;
 };
+
+export const getTotalDuration = (arrayOfMovies) => arrayOfMovies.reduce((acc, cur) => acc += cur.filmInfo.runtime, 0);

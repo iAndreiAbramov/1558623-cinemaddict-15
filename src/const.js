@@ -1,3 +1,10 @@
+export const UserRankGrades = {
+  NO_RANK: 0,
+  NOVICE: 1,
+  FAN: 11,
+  MOVIE_BUFF: 21,
+};
+
 export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
   POPUP_CONTROLS: 'POPUP_CONTROLS',
