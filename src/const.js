@@ -5,7 +5,7 @@ export const UpdateType = {
 };
 
 export const Filters = {
-  ALL: null,
+  ALL: '',
   WATCHLIST: 'watchlist',
   HISTORY: 'alreadyWatched',
   FAVORITE: 'favorite',
@@ -16,4 +16,9 @@ export const SortOptions = {
   DEFAULT: 'default',
   DATE: 'date',
   RATING: 'rating',
+};
+
+export const Screens = {
+  FILMS: 'films',
+  STATS: 'stats',
 };

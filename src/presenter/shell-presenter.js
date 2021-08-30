@@ -2,7 +2,7 @@ import FilmsListContainer from '../view/films-list-container';
 import ExtraContainer from '../view/extra-container';
 import NumberOfFilms from '../view/number-of-films';
 import ListsContainer from '../view/lists-container';
-import {Positions, insertDOMElement, replaceDOMElement} from '../utils/render';
+import {Positions, insertDOMElement} from '../utils/render';
 import UserRankView from '../view/user-rank';
 import FiltersMenu from '../view/filters-menu';
 import SortMenu from '../view/sort-menu';
@@ -11,7 +11,7 @@ import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
 import {sortData} from '../utils/sort-data';
-import {Filters, SortOptions, UpdateType} from '../const';
+import {Filters, SortOptions, UpdateType, Screens} from '../const';
 import Stats from '../view/stats';
 
 export default class ShellPresenter {
@@ -30,6 +30,7 @@ export default class ShellPresenter {
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleSwitchToStats = this._handleSwitchToStats.bind(this);
+    this._handleSwitchToFilms = this._handleSwitchToFilms.bind(this);
 
     this._filmListPresenter = null;
     this._extraPresenter = null;
@@ -41,8 +42,9 @@ export default class ShellPresenter {
     this._popup = null;
     this._stats = null;
 
+    this._currentScreen = Screens.FILMS;
     this._currentSortOption = SortOptions.DEFAULT;
-    this._currentFilter = Filters.ALL;
+    this._currentMenuOption = Filters.ALL;
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
@@ -63,18 +65,18 @@ export default class ShellPresenter {
         this._renderFiltersMenu();
         this._renderUserRank();
         this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
         this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       // case 'ALL_LISTS_HARD':
       //   this._renderFiltersMenu();
       //   this._renderUserRank();
-      //   this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
+      //   this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
       //   this._renderExtraContainers();
       //   break;
     }
@@ -86,17 +88,32 @@ export default class ShellPresenter {
   }
 
   _handleSwitchToStats(evt) {
-    this._currentFilter = evt.target.dataset.option;
+    this._currentMenuOption = evt.target.dataset.option;
+    this._currentScreen = evt.target.dataset.screen;
     this._destroyListsAndSort();
-    this._renderStats();
     this._renderFiltersMenu();
+    this._renderStats();
+    this._currentScreen = Screens.STATS;
+  }
+
+  _handleSwitchToFilms(evt) {
+    this._currentMenuOption = evt.target.dataset.option;
+    this._stats.getElement().remove();
+    this._renderFiltersMenu();
+    this._renderSortMenu(this._currentSortOption);
+    this._renderFilmsContainers();
+    this._renderFilmsList(this._getMovies());
+    this._renderExtraContainers();
+    this._currentScreen = Screens.FILMS;
   }
 
   _destroyListsAndSort() {
     this._sortMenu.getElement().remove();
-    this._sortMenu.deleteElement();
+    // this._sortMenu.deleteElement();
+    this._filmListPresenter.clear();
+    this._extraPresenter.clear();
     this._listsContainer.getElement().remove();
-    this._listsContainer.deleteElement();
+    // this._listsContainer.deleteElement();
   }
 
   _getMovies(filter = null) {
@@ -131,20 +148,26 @@ export default class ShellPresenter {
       history: this._getMovies(Filters.HISTORY),
       favorite: this._getMovies(Filters.FAVORITE),
     };
-    const filtersMenu = new FiltersMenu(filtersData, Filters[this._currentFilter] || null);
+    const filtersMenu = new FiltersMenu(
+      filtersData,
+      Filters[this._currentMenuOption] || null,
+      this._currentScreen,
+    );
     filtersMenu.setFilterToggleCallback(this._handleFilterChange);
     filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
+    filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
     this._filtersMenu = filtersMenu.getElement();
     insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
   }
 
   _handleFilterChange(evt) {
     this._renderFilmsContainers();
+    this._currentScreen = evt.target.dataset.screen;
     const filter = evt.target.dataset.option;
-    if (this._currentFilter === filter) {
+    if (this._currentMenuOption === filter) {
       return;
     }
-    this._currentFilter = filter;
+    this._currentMenuOption = filter;
     this._currentSortOption = SortOptions.DEFAULT;
     this._renderFilmsList(this._getMovies(Filters[filter]));
     this._renderFiltersMenu();
@@ -152,18 +175,16 @@ export default class ShellPresenter {
   }
 
   _renderSortMenu(option = 'default') {
+    if (this._sortMenu) {
+      this._sortMenu.getElement().remove();
+    }
     this._sortMenu = new SortMenu(option);
     this._sortMenu.setClickCallback(this._handleSortMenuClick);
-    if (this.sortMenu) {
-      replaceDOMElement(this._mainContainer, this._sortMenu, this.sortMenu);
-    } else {
-      insertDOMElement(this._mainContainer, this._sortMenu, Positions.BEFOREEND);
-    }
-    this.sortMenu = this._sortMenu.getElement();
+    insertDOMElement(this._filtersMenu, this._sortMenu.getElement(), Positions.AFTEREND);
   }
 
   _handleSortTypeChange(option) {
-    this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
+    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
     this._renderSortMenu(option);
   }
 
@@ -194,7 +215,6 @@ export default class ShellPresenter {
     }
     this._filmListPresenter = new FilmsListPresenter(data);
     this._filmListPresenter.init();
-    this._shownMainCards = this._filmListPresenter.shownCards;
   }
 
   _renderExtraContainers() {
@@ -203,8 +223,6 @@ export default class ShellPresenter {
     }
     const extraContainers = new ExtraPresenter(this._getMovies());
     extraContainers.init();
-    this._shownTopRated = extraContainers.shownTopRated;
-    this._shownMostCommented = extraContainers.shownMostCommented;
     this._extraPresenter = extraContainers;
   }
 
