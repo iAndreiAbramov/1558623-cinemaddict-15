@@ -2,7 +2,7 @@ import FilmsListContainer from '../view/films-list-container';
 import ExtraContainer from '../view/extra-container';
 import NumberOfFilms from '../view/number-of-films';
 import ListsContainer from '../view/lists-container';
-import {Positions, insertDOMElement, replaceDOMElement} from '../utils/render';
+import {Positions, insertDOMElement} from '../utils/render';
 import UserRankView from '../view/user-rank';
 import FiltersMenu from '../view/filters-menu';
 import SortMenu from '../view/sort-menu';
@@ -11,7 +11,12 @@ import FilmsListPresenter from './films-list-presenter';
 import ExtraPresenter from './extra-presenter';
 import PopupPresenter from './popup-presenter';
 import {sortData} from '../utils/sort-data';
-import {Filters, SortOptions, UpdateType} from '../const';
+import {Filters, SortOptions, UpdateType, Screens, StatsFilters} from '../const';
+import StatsContainer from '../view/stats-container';
+import ChartView from '../view/chart';
+import {ChartOptions} from '../const';
+import {filterMoviesByPeriod} from '../utils/date';
+import StatsSummary from '../view/stats-summary';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -19,8 +24,7 @@ export default class ShellPresenter {
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
-    this._sortMenu = null;
-    this._listsContainer = new ListsContainer();
+
     this._filmsContainer = new FilmsListContainer();
     this._topRatedContainer = new ExtraContainer('Top rated');
     this._mostCommentedContainer = new ExtraContainer('Most commented');
@@ -29,21 +33,26 @@ export default class ShellPresenter {
     this._handleSortMenuClick = this._handleSortMenuClick.bind(this);
     this._handleFilterChange = this._handleFilterChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._handleSwitchToStats = this._handleSwitchToStats.bind(this);
+    this._handleSwitchToFilms = this._handleSwitchToFilms.bind(this);
+    this._handleStatsFilterToggle = this._handleStatsFilterToggle.bind(this);
 
     this._filmListPresenter = null;
     this._extraPresenter = null;
-    this._shownMainCards = null;
-    this._shownTopRated = null;
-    this._shownMostCommented = null;
-    this._PreviousStates = {
-      userRank: null,
-      filtersMenu: null,
-      sortMenu: null,
-      popup: null,
-    };
 
+    this._listsContainer = null;
+    this._userRank = null;
+    this._filtersMenu = null;
+    this._sortMenu = null;
+    this._popup = null;
+    this._statsContainer = null;
+    this._statsSummary = null;
+    this._chart = null;
+
+    this._currentScreen = Screens.FILMS;
     this._currentSortOption = SortOptions.DEFAULT;
-    this._currentFilter = Filters.ALL;
+    this._currentMenuOption = Filters.ALL;
+    this._currentStatsFilter = StatsFilters.ALL;
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
@@ -64,27 +73,90 @@ export default class ShellPresenter {
         this._renderFiltersMenu();
         this._renderUserRank();
         this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
         this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentFilter]));
+        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
-      // case 'ALL_LISTS_HARD':
-      //   this._renderFiltersMenu();
-      //   this._renderUserRank();
-      //   this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
-      //   this._renderExtraContainers();
-      //   break;
     }
   }
 
-  _getMovies(filter = null) {
+  _handleStatsFilterToggle(evt) {
+    evt.preventDefault();
+    const filter = StatsFilters[evt.target.dataset.filter];
+    if (filter !== this._currentStatsFilter) {
+      this._currentStatsFilter = filter;
+      const movies = this._getMovies(Filters.HISTORY, this._currentStatsFilter);
+      this._statsContainer.getElement().remove();
+      this._statsSummary.getElement().remove();
+      this._chart.getElement().remove();
+      this._renderStatsContainer();
+      this._renderStatsSummary(movies);
+      if (movies.length) {
+        this._renderChart(movies);
+      }
+    }
+  }
+
+  _handleSwitchToStats(evt) {
+    if (this._currentScreen !== Screens.STATS) {
+      this._currentMenuOption = evt.target.dataset.option;
+      this._currentScreen = evt.target.dataset.screen;
+      this._destroyListsAndSort();
+      this._renderFiltersMenu();
+      this._renderStatsContainer();
+      this._renderStatsSummary(this._getMovies(Filters.HISTORY, this._currentStatsFilter));
+      this._renderChart(this._getMovies(Filters.HISTORY, this._currentStatsFilter));
+      this._currentScreen = Screens.STATS;
+    }
+  }
+
+  _renderStatsContainer() {
+    this._statsContainer = new StatsContainer(this._userRank.rank, this._currentStatsFilter);
+    this._statsContainer.setFilterClickHandler(this._handleStatsFilterToggle);
+    insertDOMElement(this._filtersMenu, this._statsContainer, Positions.AFTEREND);
+  }
+
+  _renderStatsSummary(movies) {
+    this._statsSummary = new StatsSummary(movies);
+    insertDOMElement(this._statsContainer.getElement(), this._statsSummary, Positions.BEFOREEND);
+  }
+
+  _renderChart(movies, options = ChartOptions) {
+    this._chart = new ChartView(movies, options);
+    insertDOMElement(this._statsContainer.getElement(), this._chart, Positions.BEFOREEND);
+    this._chart.render();
+  }
+
+  _handleSwitchToFilms(evt) {
+    this._currentMenuOption = evt.target.dataset.option;
+    this._statsContainer.getElement().remove();
+    this._renderFiltersMenu();
+    this._renderSortMenu();
+    this._renderFilmsContainers();
+    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
+    this._renderExtraContainers();
+    this._currentScreen = Screens.FILMS;
+  }
+
+  _destroyListsAndSort() {
+    this._sortMenu.getElement().remove();
+    this._filmListPresenter.clear();
+    this._extraPresenter.clear();
+    this._listsContainer.getElement().remove();
+    this._listsContainer = null;
+  }
+
+  _getMovies(filter = null, period = null) {
     let data = this._moviesModel.getMovies();
     if (filter) {
       data = data.filter((movie) => movie.userDetails[filter]);
+    }
+    if (period) {
+      data = filterMoviesByPeriod(data, this._currentStatsFilter);
     }
     const option = this._currentSortOption;
     return sortData(data, option);
@@ -96,66 +168,48 @@ export default class ShellPresenter {
   }
 
   _renderUserRank() {
-    if (this._PreviousStates.userRank) {
-      this._PreviousStates.userRank.remove();
+    if (this._userRank) {
+      this._userRank.getElement().remove();
     }
-    const userRank = new UserRankView(this._getMovies(Filters.HISTORY));
-    this._PreviousStates.userRank = userRank.getElement();
-    insertDOMElement(this._userRankContainer, userRank, Positions.BEFOREEND);
+    this._userRank = new UserRankView(this._getMovies(Filters.HISTORY));
+    insertDOMElement(this._userRankContainer, this._userRank, Positions.BEFOREEND);
   }
 
   _renderFiltersMenu() {
-    if (this._PreviousStates.filtersMenu) {
-      this._PreviousStates.filtersMenu.remove();
+    if (this._filtersMenu) {
+      this._filtersMenu.remove();
     }
     const filtersData = {
       watchlist: this._getMovies(Filters.WATCHLIST),
       history: this._getMovies(Filters.HISTORY),
       favorite: this._getMovies(Filters.FAVORITE),
     };
-    const filtersMenu = new FiltersMenu(filtersData, Filters[this._currentFilter] || null);
-    filtersMenu.setClickCallback(this._handleFilterChange);
-    this._PreviousStates.filtersMenu = filtersMenu.getElement();
+    const filtersMenu = new FiltersMenu(
+      filtersData,
+      Filters[this._currentMenuOption] || null,
+      this._currentScreen,
+    );
+    filtersMenu.setFilterToggleCallback(this._handleFilterChange);
+    filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
+    filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
+    this._filtersMenu = filtersMenu.getElement();
     insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
   }
 
-  _handleFilterChange(evt) {
-    const filter = evt.target.dataset.filter;
-    if (this._currentFilter === filter) {
-      return;
-    }
-    this._currentFilter = filter;
-    this._currentSortOption = SortOptions.DEFAULT;
-    this._renderFilmsList(this._getMovies(Filters[filter]));
-    this._renderFiltersMenu();
-    this._renderSortMenu();
-  }
-
   _renderSortMenu(option = 'default') {
+    if (this._sortMenu) {
+      this._sortMenu.getElement().remove();
+    }
     this._sortMenu = new SortMenu(option);
     this._sortMenu.setClickCallback(this._handleSortMenuClick);
-    if (this._PreviousStates.sortMenu) {
-      replaceDOMElement(this._mainContainer, this._sortMenu, this._PreviousStates.sortMenu);
-    } else {
-      insertDOMElement(this._mainContainer, this._sortMenu, Positions.BEFOREEND);
-    }
-    this._PreviousStates.sortMenu = this._sortMenu.getElement();
-  }
-
-  _handleSortTypeChange(option) {
-    this._renderFilmsList(this._getMovies(Filters[this._currentFilter]));
-    this._renderSortMenu(option);
-  }
-
-  _handleSortMenuClick(evt) {
-    const sortOption = evt.target.dataset.sort;
-    if (sortOption !== this._currentSortOption) {
-      this._currentSortOption = sortOption;
-      this._handleSortTypeChange(sortOption);
-    }
+    insertDOMElement(this._filtersMenu, this._sortMenu.getElement(), Positions.AFTEREND);
   }
 
   _renderFilmsContainers() {
+    if (this._listsContainer) {
+      return;
+    }
+    this._listsContainer = new ListsContainer();
     this._listsContainer.setPopupOpenCallback(this._handlePopupOpen);
     this._listsContainer.setCategoryToggleCallback(this._handleCategoryToggle);
     insertDOMElement(this._mainContainer, this._listsContainer, Positions.BEFOREEND);
@@ -170,7 +224,6 @@ export default class ShellPresenter {
     }
     this._filmListPresenter = new FilmsListPresenter(data);
     this._filmListPresenter.init();
-    this._shownMainCards = this._filmListPresenter.shownCards;
   }
 
   _renderExtraContainers() {
@@ -179,29 +232,54 @@ export default class ShellPresenter {
     }
     const extraContainers = new ExtraPresenter(this._getMovies());
     extraContainers.init();
-    this._shownTopRated = extraContainers.shownTopRated;
-    this._shownMostCommented = extraContainers.shownMostCommented;
     this._extraPresenter = extraContainers;
   }
 
+  _handleSortTypeChange(option) {
+    this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
+    this._renderSortMenu(option);
+  }
+
+  _handleFilterChange(evt) {
+    this._renderFilmsContainers();
+    this._currentScreen = evt.target.dataset.screen;
+    const filter = evt.target.dataset.option;
+    if (this._currentMenuOption === filter) {
+      return;
+    }
+    this._currentMenuOption = filter;
+    this._currentSortOption = SortOptions.DEFAULT;
+    this._renderFilmsList(this._getMovies(Filters[filter]));
+    this._renderFiltersMenu();
+    this._renderSortMenu();
+  }
+
+  _handleSortMenuClick(evt) {
+    const sortOption = evt.target.dataset.sort;
+    if (sortOption !== this._currentSortOption) {
+      this._currentSortOption = sortOption;
+      this._handleSortTypeChange(sortOption);
+    }
+  }
+
   _handlePopupOpen(evt) {
-    if (!this._PreviousStates.popup || !this._PreviousStates.popup.isOpened) {
+    if (!this._popup || !this._popup.isOpened) {
       const targetId = +evt.target.closest('article').getAttribute('data-id');
       const movieItem = getMovieById(this._getMovies(), targetId);
       const filmPopup = new PopupPresenter(movieItem, this._moviesModel);
       filmPopup.init();
-      this._PreviousStates.popup = filmPopup;
+      this._popup = filmPopup;
     }
   }
 
   _handleCategoryToggle(evt) {
-    if (!this._PreviousStates.popup || !this._PreviousStates.popup.isOpened) {
+    if (!this._popup || !this._popup.isOpened) {
       const oldCard = evt.target.closest('article');
       const id = +oldCard.dataset.id;
       const option = evt.target.dataset.details;
       const updatedMovie = Object.assign(
         {},
-        getMovieById(this._getMovies(Filters[this._currentFilter]), id),
+        getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
       this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, updatedMovie);

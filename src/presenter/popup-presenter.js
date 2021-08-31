@@ -5,6 +5,7 @@ import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
 import {getRandomInteger, isEscEvent} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
+import {sortCommentsByDate} from '../utils/sort-data';
 
 const COMMENTS_DELETION_COUNT = 1;
 
@@ -108,7 +109,7 @@ export default class PopupPresenter {
       comment.remove();
     });
     this._shownComments.clear();
-    this._comments = this._getCommentsFromModel();
+    this._comments = sortCommentsByDate(this._getCommentsFromModel());
     this._commentsNumber.textContent = this._comments.length;
     this._comments.forEach((commentItem) => {
       const comment = new CommentItem(commentItem);
