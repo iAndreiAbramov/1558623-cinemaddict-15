@@ -42,10 +42,12 @@ export const getGenresList = (arrayOfMovies) => {
   arrayOfMovies.forEach((movie) => {
     const movieGenres = movie.filmInfo.genre.trim().split(' ').filter((item) => item !== ' ');
     movieGenres.forEach((genre) => {
-      if (genre in genresList) {
-        genresList[genre]++;
-      } else {
-        genresList[genre] = 0;
+      if (genre) {
+        if (genre in genresList) {
+          genresList[genre]++;
+        } else {
+          genresList[genre] = 1;
+        }
       }
     });
   });

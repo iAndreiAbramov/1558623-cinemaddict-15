@@ -32,6 +32,14 @@ export const Screens = {
   STATS: 'stats',
 };
 
+export const StatsFilters = {
+  ALL: '',
+  TODAY: 'day',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year',
+};
+
 //Chart
 export const BAR_HEIGHT = 50;
 export const ChartOptions = {
