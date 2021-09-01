@@ -11,6 +11,7 @@ export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
   POPUP_CONTROLS: 'POPUP_CONTROLS',
   COMMENT: 'COMMENT',
+  INIT: 'INIT',
 };
 
 export const Filters = {

@@ -1,24 +1,17 @@
 import ShellPresenter from './presenter/shell-presenter';
-import {getAllMovies} from './utils/data-filters';
-import Movies from './model/movies';
+import MoviesModel from './model/movies-model';
 import Api from './api';
+import {UpdateType} from './const';
 
 const ENDPOINT = 'https://15.ecmascript.pages.academy/cinemaddict';
 const AUTHORIZATION = 'Basic jRp3s4Fv6Hh9Zv77';
+const moviesModel = new MoviesModel();
+const shellPresenter = new ShellPresenter(moviesModel);
 
 document.addEventListener('DOMContentLoaded', () => {
-  // const movies = getAllMovies();
-  // console.log(movies[0]);
-
+  shellPresenter.init();
   const api = new Api(ENDPOINT, AUTHORIZATION);
-  api.pullMovies().then((movies) => {
-    // console.log(movies);
-    // console.log(movies[0]);
-    const moviesModel = new Movies();
-    moviesModel.setMovies(movies);
-    // console.log(moviesModel.getMovies()[0]);
-
-    const shellPresenter = new ShellPresenter(moviesModel);
-    shellPresenter.init();
-  });
+  api.pullMovies()
+    .then((movies) => moviesModel.setMovies(UpdateType.INIT, movies))
+    .catch(() => moviesModel.setMovies(UpdateType.INIT, []));
 });

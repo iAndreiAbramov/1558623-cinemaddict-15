@@ -17,6 +17,7 @@ import ChartView from '../view/chart';
 import {ChartOptions} from '../const';
 import {filterMoviesByPeriod} from '../utils/date';
 import StatsSummary from '../view/stats-summary';
+import LoadingMessage from '../view/loading-message';
 
 export default class ShellPresenter {
   constructor(moviesModel) {
@@ -40,10 +41,11 @@ export default class ShellPresenter {
     this._filmListPresenter = null;
     this._extraPresenter = null;
 
-    this._listsContainer = null;
     this._userRank = null;
     this._filtersMenu = null;
     this._sortMenu = null;
+    this._listsContainer = null;
+    this._loadingMessage = null;
     this._popup = null;
     this._statsContainer = null;
     this._statsSummary = null;
@@ -53,19 +55,27 @@ export default class ShellPresenter {
     this._currentSortOption = SortOptions.DEFAULT;
     this._currentMenuOption = Filters.ALL;
     this._currentStatsFilter = StatsFilters.ALL;
+    this._isLoading = true;
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
 
   init() {
-    console.log(this._moviesModel.getMovies());
-    this._renderFilmsNumber(this._getMovies());
-    this._renderUserRank();
+    if (this._loadingMessage) {
+      this._loadingMessage.getElement().remove();
+      this._loadingMessage.deleteElement();
+    }
     this._renderFiltersMenu();
-    this._renderSortMenu(this._currentSortOption);
-    this._renderFilmsContainers();
-    this._renderFilmsList(this._getMovies());
-    this._renderExtraContainers();
+    this._renderFilmsNumber(this._getMovies());
+    if (this._isLoading) {
+      this._renderLoading();
+    } else {
+      this._renderUserRank();
+      this._renderSortMenu(this._currentSortOption);
+      this._renderFilmsContainers();
+      this._renderFilmsList(this._getMovies());
+      this._renderExtraContainers();
+    }
   }
 
   _handleModelEvent(updateType) {
@@ -82,7 +92,15 @@ export default class ShellPresenter {
         this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        this.init();
     }
+  }
+
+  _renderLoading() {
+    this._loadingMessage = new LoadingMessage();
+    insertDOMElement(this._filtersMenu, this._loadingMessage, Positions.AFTEREND);
   }
 
   _handleStatsFilterToggle(evt) {

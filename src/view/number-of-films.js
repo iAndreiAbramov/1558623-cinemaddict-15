@@ -1,8 +1,11 @@
 import AbstractView from './abstract-view';
 
-const getNumberOfFilmsHtml = (data) => `
+const getNumberOfFilmsHtml = (data) => {
+  data = data || [];
+  return `
     <p>${data.length} movies inside</p>
   `;
+};
 
 export default class NumberOfFilms extends AbstractView {
   constructor(data) {

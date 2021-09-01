@@ -2,6 +2,7 @@ import FilmCard from '../view/film-card';
 import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
+import LoadingMessage from '../view/loading-message';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
@@ -22,10 +23,6 @@ export default class FilmsListPresenter {
       moreButtonShown: false,
       messageShown: false,
     };
-  }
-
-  get shownCards() {
-    return this._shownCards;
   }
 
   init() {

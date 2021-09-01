@@ -1,13 +1,14 @@
 import AbstractObserver from '../utils/abstract-observer';
 
-export default class Movies extends AbstractObserver {
+export default class MoviesModel extends AbstractObserver {
   constructor() {
     super();
     this._movies = [];
   }
 
-  setMovies(movies) {
+  setMovies(updateType, movies) {
     this._movies = movies.slice().map((movie) => this.adaptMovieToClient(movie));
+    this._notify(updateType, this._movies);
   }
 
   getMovies() {
