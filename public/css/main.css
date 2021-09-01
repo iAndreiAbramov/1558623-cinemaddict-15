@@ -248,6 +248,7 @@ button {
   color: var(--text-color);
   margin-right: 40px;
   padding: var(--vertical-gap) 0;
+  cursor: pointer;
 }
 
 .main-navigation__item:first-child {
@@ -266,6 +267,7 @@ button {
   margin-left: auto;
   padding: var(--vertical-gap) 0;
   color: var(--text-color);
+  cursor: pointer;
 }
 
 .main-navigation__item--active,

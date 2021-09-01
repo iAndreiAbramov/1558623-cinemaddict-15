@@ -68,6 +68,9 @@ export default class ShellPresenter {
     this._renderFiltersMenu();
     this._renderFilmsNumber(this._getMovies());
     if (this._isLoading) {
+      this._filtersMenu.removeFilterToggleCallback(this._handleFilterChange);
+      this._filtersMenu.removeSwitchToStatsCallback(this._handleSwitchToStats);
+      this._filtersMenu.removeSwitchToFilmsCallback(this._handleSwitchToFilms);
       this._renderLoading();
     } else {
       this._renderUserRank();
@@ -121,6 +124,7 @@ export default class ShellPresenter {
   }
 
   _handleSwitchToStats(evt) {
+    evt.preventDefault();
     if (this._currentScreen !== Screens.STATS) {
       this._currentMenuOption = evt.target.dataset.option;
       this._currentScreen = evt.target.dataset.screen;
@@ -151,6 +155,7 @@ export default class ShellPresenter {
   }
 
   _handleSwitchToFilms(evt) {
+    evt.preventDefault();
     this._currentMenuOption = evt.target.dataset.option;
     this._statsContainer.getElement().remove();
     this._renderFiltersMenu();
@@ -196,23 +201,22 @@ export default class ShellPresenter {
 
   _renderFiltersMenu() {
     if (this._filtersMenu) {
-      this._filtersMenu.remove();
+      this._filtersMenu.getElement().remove();
     }
     const filtersData = {
       watchlist: this._getMovies(Filters.WATCHLIST),
       history: this._getMovies(Filters.HISTORY),
       favorite: this._getMovies(Filters.FAVORITE),
     };
-    const filtersMenu = new FiltersMenu(
+    this._filtersMenu = new FiltersMenu(
       filtersData,
       Filters[this._currentMenuOption] || null,
       this._currentScreen,
     );
-    filtersMenu.setFilterToggleCallback(this._handleFilterChange);
-    filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
-    filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
-    this._filtersMenu = filtersMenu.getElement();
-    insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
+    this._filtersMenu.setFilterToggleCallback(this._handleFilterChange);
+    this._filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
+    this._filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
+    insertDOMElement(this._mainContainer, this._filtersMenu, Positions.AFTERBEGIN);
   }
 
   _renderSortMenu(option = 'default') {
@@ -260,6 +264,7 @@ export default class ShellPresenter {
   }
 
   _handleFilterChange(evt) {
+    evt.preventDefault();
     this._renderFilmsContainers();
     this._currentScreen = evt.target.dataset.screen;
     const filter = evt.target.dataset.option;

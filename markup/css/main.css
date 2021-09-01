@@ -248,6 +248,7 @@ button {
   color: var(--text-color);
   margin-right: 40px;
   padding: var(--vertical-gap) 0;
+  cursor: pointer;
 }
 
 .main-navigation__item:first-child {
