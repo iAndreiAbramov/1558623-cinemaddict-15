@@ -27,6 +27,31 @@ export default class Api {
       .then(Api.toJSON);
   }
 
+  pullComments(movieId) {
+    return this._load({
+      url: `comments/${movieId}`,
+    })
+      .then(Api.toJSON);
+  }
+
+  postComment(movieId, comment) {
+    return this._load({
+      url: `comments/${movieId}`,
+      method: Method.POST,
+      body: JSON.stringify(comment),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    })
+      .then(Api.toJSON);
+  }
+
+  deleteComment(commentId) {
+    return this._load({
+      url: `comments/${commentId}`,
+      method: Method.DELETE,
+    })
+      .then(Api.toJSON);
+  }
+
   _load(
     {
       url,

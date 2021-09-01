@@ -2,7 +2,7 @@ import Popup from '../view/popup';
 import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
-import {getRandomInteger, isEscEvent} from '../utils/common';
+import {isEscEvent} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
@@ -14,14 +14,14 @@ export default class PopupPresenter {
     this._moviesModel = moviesModel;
     this._movieItem = movieItem;
     this._api = api;
-    this._id = this._movieItem.id;
+    this._movieId = this._movieItem.id;
     this._popup = new Popup(this._movieItem);
     this._popupDOMElement = this._popup.getElement();
     this._closeButton = this._popupDOMElement.querySelector('.film-details__close-btn');
     this._controlsContainer = this._popupDOMElement.querySelector('.film-details__top-container');
     this._commentsContainer = this._popupDOMElement.querySelector('.film-details__comments-list');
     this._commentsNumber = this._popupDOMElement.querySelector('.film-details__comments-count');
-    this._comments = this._movieItem.comments;
+    this._comments = [];
     this._newCommentForm = null;
     this._container = document.body;
     this._isOpened = false;
@@ -53,7 +53,7 @@ export default class PopupPresenter {
         this._renderControls();
         break;
       case UpdateType.COMMENT:
-        this._comments = this._getCommentsFromModel();
+        this._comments = this._getCommentsFromApi();
         this._renderComments();
         this._updateNewCommentForm();
     }
@@ -78,8 +78,9 @@ export default class PopupPresenter {
     document.addEventListener('keydown', this._handleFormSubmit);
   }
 
-  _getCommentsFromModel() {
-    return this._moviesModel.getComments(this._id);
+  _getCommentsFromApi() {
+    return this._api.pullComments(this._movieId)
+      .then((comments) => this._comments = [...comments]);
   }
 
   _renderControls() {
@@ -100,10 +101,9 @@ export default class PopupPresenter {
       this._movieItem,
     );
     updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-    this._api.putMovie(this._id, this._moviesModel.adaptMovieToServer(updatedMovie))
+    this._api.putMovie(this._movieId, this._moviesModel.adaptMovieToServer(updatedMovie))
       .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)))
       .then((movie) => this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, movie))
-      .then(() => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT))
       .then(() => this._movieItem = updatedMovie);
   }
 
@@ -112,14 +112,17 @@ export default class PopupPresenter {
       comment.remove();
     });
     this._shownComments.clear();
-    this._comments = sortCommentsByDate(this._getCommentsFromModel());
-    this._commentsNumber.textContent = this._comments.length;
-    this._comments.forEach((commentItem) => {
-      const comment = new CommentItem(commentItem);
-      comment.setCommentDeleteCallback(this._handleCommentDeletion);
-      insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
-      this._shownComments.set(commentItem.id, comment.getElement());
-    });
+    this._getCommentsFromApi()
+      .then(() => {
+        this._comments = sortCommentsByDate(this._comments);
+        this._commentsNumber.textContent = this._comments.length;
+        this._comments.forEach((commentItem) => {
+          const comment = new CommentItem(commentItem);
+          comment.setCommentDeleteCallback(this._handleCommentDeletion);
+          insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
+          this._shownComments.set(commentItem.id, comment.getElement());
+        });
+      });
   }
 
   _renderNewComment() {
@@ -134,12 +137,7 @@ export default class PopupPresenter {
 
   _handleFormSubmit(evt) {
     if (evt.ctrlKey && evt.key === 'Enter') {
-      const update = {
-        date: new Date(),
-      };
-      if (!this._newCommentForm.state.id) {
-        update.id = getRandomInteger(10000, 10000000);
-      }
+      const update = {};
       if (!this._newCommentForm.state.comment) {
         update.comment = 'I have no words...';
       }
@@ -148,11 +146,15 @@ export default class PopupPresenter {
     }
   }
 
-  _handleCommentAddition(comment) {
-    const updatedMovie = Object.assign({}, this._movieItem);
-    updatedMovie.comments.push(comment);
-    this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
-    this._movieItem = updatedMovie;
+  _handleCommentAddition(commentId, comment) {
+    this._api.postComment(this._movieId, comment)
+      .then((response) => {
+        console.log(response);
+        // const updatedMovie = Object.assign({}, this._movieItem);
+        // updatedMovie.comments.push(commentId);
+        // this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
+        // this._movieItem = updatedMovie;
+      });
   }
 
   _handleCommentDeletion(id) {

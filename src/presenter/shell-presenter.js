@@ -308,7 +308,10 @@ export default class ShellPresenter {
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
       this._api.putMovie(id, this._moviesModel.adaptMovieToServer(updatedMovie))
-        .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)));
+        .then((movie) => this._moviesModel.updateMovie(
+          UpdateType.ALL_LISTS_SOFT,
+          this._moviesModel.adaptMovieToClient(movie),
+        ));
     }
   }
 }

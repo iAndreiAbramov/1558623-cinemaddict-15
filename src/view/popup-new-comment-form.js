@@ -75,13 +75,6 @@ export default class PopupNewCommentForm extends SmartView {
     }
   }
 
-  // _textAreaBlurHandler(evt) {
-  //   this.updateState({
-  //     comment: he.encode(evt.target.value),
-  //   });
-  //   this.updateElement();
-  // }
-
   _textAreaInputHandler(evt) {
     this.updateState({
       comment: he.encode(evt.target.value),

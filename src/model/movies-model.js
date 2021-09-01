@@ -15,11 +15,6 @@ export default class MoviesModel extends AbstractObserver {
     return this._movies;
   }
 
-  getComments(id) {
-    const movieIndex = this._movies.findIndex((item) => +item.id === +id);
-    return this._movies[movieIndex].comments;
-  }
-
   adaptMovieToClient(movie) {
     const updatedMovie = Object.assign(
       {},
