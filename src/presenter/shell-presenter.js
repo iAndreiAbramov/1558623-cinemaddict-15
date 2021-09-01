@@ -58,6 +58,7 @@ export default class ShellPresenter {
   }
 
   init() {
+    console.log(this._moviesModel.getMovies());
     this._renderFilmsNumber(this._getMovies());
     this._renderUserRank();
     this._renderFiltersMenu();

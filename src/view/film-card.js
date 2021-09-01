@@ -8,6 +8,7 @@ const getFilmCardHtml = (filmData) => {
   const {id, comments, filmInfo, userDetails} = filmData;
   const releaseYear = formatDate(filmInfo.release.date, 'YYYY').slice(-4) || '';
   const runtime = getDurationFromMinutes(filmInfo.runtime) || '';
+  const genres = filmInfo.genre ? filmInfo.genre.join(', ') : 'NO DATA';
   return `
     <article class="film-card" data-id="${id}">
       <h3 class="film-card__title">${filmInfo.title}</h3>
@@ -15,7 +16,7 @@ const getFilmCardHtml = (filmData) => {
       <p class="film-card__info">
         <span class="film-card__year">${releaseYear}</span>
         <span class="film-card__duration">${runtime}</span>
-        <span class="film-card__genre">${filmInfo.genre}</span>
+        <span class="film-card__genre">${genres}</span>
       </p>
       <img src="${filmInfo.poster}" alt="" class="film-card__poster" width="230" height="340">
       <p class="film-card__description">${getShortDescription(filmInfo.description, MAX_DESCRIPTION_LENGTH)}</p>
