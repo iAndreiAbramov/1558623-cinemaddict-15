@@ -48,8 +48,7 @@ export default class Api {
     return this._load({
       url: `comments/${commentId}`,
       method: Method.DELETE,
-    })
-      .then(Api.toJSON);
+    });
   }
 
   _load(

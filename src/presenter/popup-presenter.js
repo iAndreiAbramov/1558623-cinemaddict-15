@@ -23,6 +23,7 @@ export default class PopupPresenter {
     this._commentsNumber = this._popupDOMElement.querySelector('.film-details__comments-count');
     this._comments = [];
     this._newCommentForm = null;
+    this._addedComment = null;
     this._container = document.body;
     this._isOpened = false;
     this._shownComments = new Map();
@@ -53,9 +54,8 @@ export default class PopupPresenter {
         this._renderControls();
         break;
       case UpdateType.COMMENT:
-        this._comments = this._getCommentsFromApi();
-        this._renderComments();
         this._updateNewCommentForm();
+        break;
     }
   }
 
@@ -72,7 +72,7 @@ export default class PopupPresenter {
     this._container.style.overflow = 'hidden';
     this._renderControls();
     this._renderComments();
-    this._renderNewComment();
+    this._renderNewCommentForm();
     document.addEventListener('keydown', this._handleEscKeydown);
     this._closeButton.addEventListener('click', this._closePopupByClick);
     document.addEventListener('keydown', this._handleFormSubmit);
@@ -115,7 +115,7 @@ export default class PopupPresenter {
     this._getCommentsFromApi()
       .then(() => {
         this._comments = sortCommentsByDate(this._comments);
-        this._commentsNumber.textContent = this._comments.length;
+
         this._comments.forEach((commentItem) => {
           const comment = new CommentItem(commentItem);
           comment.setCommentDeleteCallback(this._handleCommentDeletion);
@@ -125,14 +125,14 @@ export default class PopupPresenter {
       });
   }
 
-  _renderNewComment() {
+  _renderNewCommentForm() {
     this._newCommentForm = new PopupNewCommentForm();
     insertDOMElement(this._commentsContainer, this._newCommentForm, Positions.AFTEREND);
   }
 
   _updateNewCommentForm() {
     this._newCommentForm.updateElement().remove();
-    this._renderNewComment();
+    this._renderNewCommentForm();
   }
 
   _handleFormSubmit(evt) {
@@ -146,22 +146,39 @@ export default class PopupPresenter {
     }
   }
 
-  _handleCommentAddition(commentId, comment) {
+  _handleCommentAddition(comment) {
     this._api.postComment(this._movieId, comment)
       .then((response) => {
-        console.log(response);
-        // const updatedMovie = Object.assign({}, this._movieItem);
-        // updatedMovie.comments.push(commentId);
-        // this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
-        // this._movieItem = updatedMovie;
+        this._comments = [...response.comments];
+        const updatedMovie = Object.assign(
+          {},
+          this._moviesModel.adaptMovieToClient(response.movie),
+        );
+        this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
+        this._movieItem = updatedMovie;
+      })
+      .then(() => {
+        this._addedComment = new CommentItem(this._comments.slice().pop());
+        this._addedComment.setCommentDeleteCallback(this._handleCommentDeletion);
+        this._shownComments.set(this._addedComment.id, this._addedComment.getElement());
+        this._commentsNumber.textContent = this._shownComments.size;
+        insertDOMElement(this._commentsContainer, this._addedComment, Positions.BEFOREEND);
       });
   }
 
   _handleCommentDeletion(id) {
-    const updatedMovie = Object.assign({}, this._movieItem);
-    const index = updatedMovie.comments.findIndex((item) => +item.id === +id);
-    updatedMovie.comments.splice(index, COMMENTS_DELETION_COUNT);
-    this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
+    this._api.deleteComment(id)
+      .then(() => {
+        const updatedMovie = Object.assign({}, this._movieItem);
+        const index = updatedMovie.comments.findIndex((item) => +item.id === +id);
+        updatedMovie.comments.splice(index, COMMENTS_DELETION_COUNT);
+        this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
+      })
+      .then(() => {
+        this._shownComments.get(id).remove();
+        this._shownComments.delete(id);
+        this._commentsNumber.textContent = this._shownComments.size;
+      });
   }
 
   _handleEscKeydown(keyDownEvt) {

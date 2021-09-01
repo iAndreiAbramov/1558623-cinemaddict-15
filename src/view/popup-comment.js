@@ -33,6 +33,10 @@ export default class CommentItem extends AbstractView {
     return getCommentItemHtml(this._commentdataItem);
   }
 
+  get id() {
+    return this._commentdataItem.id;
+  }
+
   _commentDeleteCallback(evt) {
     evt.preventDefault();
     this._callback.commentDelete(this._commentdataItem.id);
