@@ -20,8 +20,9 @@ import StatsSummary from '../view/stats-summary';
 import LoadingMessage from '../view/loading-message';
 
 export default class ShellPresenter {
-  constructor(moviesModel) {
+  constructor(moviesModel, api) {
     this._moviesModel = moviesModel;
+    this._api = api;
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
@@ -290,7 +291,7 @@ export default class ShellPresenter {
     if (!this._popup || !this._popup.isOpened) {
       const targetId = +evt.target.closest('article').getAttribute('data-id');
       const movieItem = getMovieById(this._getMovies(), targetId);
-      const filmPopup = new PopupPresenter(movieItem, this._moviesModel);
+      const filmPopup = new PopupPresenter(movieItem, this._moviesModel, this._api);
       filmPopup.init();
       this._popup = filmPopup;
     }
@@ -306,7 +307,8 @@ export default class ShellPresenter {
         getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-      this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, updatedMovie);
+      this._api.putMovie(id, this._moviesModel.adaptMovieToServer(updatedMovie))
+        .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)));
     }
   }
 }

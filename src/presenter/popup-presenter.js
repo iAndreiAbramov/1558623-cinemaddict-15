@@ -10,9 +10,10 @@ import {sortCommentsByDate} from '../utils/sort-data';
 const COMMENTS_DELETION_COUNT = 1;
 
 export default class PopupPresenter {
-  constructor(movieItem, moviesModel) {
+  constructor(movieItem, moviesModel, api) {
     this._moviesModel = moviesModel;
     this._movieItem = movieItem;
+    this._api = api;
     this._id = this._movieItem.id;
     this._popup = new Popup(this._movieItem);
     this._popupDOMElement = this._popup.getElement();
@@ -99,9 +100,11 @@ export default class PopupPresenter {
       this._movieItem,
     );
     updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-    this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, updatedMovie);
-    this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT);
-    this._movieItem = updatedMovie;
+    this._api.putMovie(this._id, this._moviesModel.adaptMovieToServer(updatedMovie))
+      .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)))
+      .then((movie) => this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, movie))
+      .then(() => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT))
+      .then(() => this._movieItem = updatedMovie);
   }
 
   _renderComments() {

@@ -51,7 +51,33 @@ export default class MoviesModel extends AbstractObserver {
   }
 
   adaptMovieToServer(movie) {
-    console.log(movie);
+    const updatedMovie = Object.assign(
+      {},
+      movie,
+    );
+
+    updatedMovie['film_info'] = Object.assign({}, movie.filmInfo);
+    updatedMovie['film_info']['age_rating'] = movie.filmInfo.ageRating;
+    updatedMovie['film_info']['alternative_title'] = movie.filmInfo.alternativeTitle;
+    updatedMovie['film_info']['total_rating'] = movie.filmInfo.totalRating;
+    updatedMovie['film_info']['release'] = Object.assign({}, movie.filmInfo.release);
+    updatedMovie['film_info']['release']['release_country'] = movie.filmInfo.release.releaseCountry;
+
+    updatedMovie['user_details'] = Object.assign({}, movie.userDetails);
+    updatedMovie['user_details']['already_watched'] = movie.userDetails.alreadyWatched;
+    updatedMovie['user_details']['watching_date'] = movie.userDetails.watchingDate;
+
+    delete updatedMovie.filmInfo;
+    delete updatedMovie['film_info']['ageRating'];
+    delete updatedMovie['film_info']['alternativeTitle'];
+    delete updatedMovie['film_info']['totalRating'];
+    delete updatedMovie['film_info']['release']['releaseCountry'];
+
+    delete updatedMovie['user_details']['userDetails'];
+    delete updatedMovie['user_details']['alreadyWatched'];
+    delete updatedMovie['user_details']['watchingDate'];
+
+    return updatedMovie;
   }
 
   updateMovie(updateType, updateBody = null) {
