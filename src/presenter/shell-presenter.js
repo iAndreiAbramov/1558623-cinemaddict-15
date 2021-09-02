@@ -43,6 +43,7 @@ export default class ShellPresenter {
     this._extraPresenter = null;
 
     this._userRank = null;
+    this._numberOfFilms = null;
     this._filtersMenu = null;
     this._sortMenu = null;
     this._listsContainer = null;
@@ -188,8 +189,11 @@ export default class ShellPresenter {
   }
 
   _renderFilmsNumber(data) {
-    const numberOfFilms = new NumberOfFilms(data);
-    insertDOMElement(this._numberOfFilmsContainer, numberOfFilms, Positions.BEFOREEND);
+    if (this._numberOfFilms) {
+      this._numberOfFilms.getElement().remove();
+    }
+    this._numberOfFilms = new NumberOfFilms(data);
+    insertDOMElement(this._numberOfFilmsContainer, this._numberOfFilms, Positions.BEFOREEND);
   }
 
   _renderUserRank() {
