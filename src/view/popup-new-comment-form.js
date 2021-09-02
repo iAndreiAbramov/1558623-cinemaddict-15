@@ -1,9 +1,10 @@
 import * as he from 'he';
 import SmartView from './smart';
-import {EmotionsImages} from '../mock-data/data-sets';
+import {EmotionsImages} from '../const';
 
-const getPopupNewCommentHtml = (state) => {
+const getPopupNewCommentHtml = (state, isInProgress) => {
   const {emotion, comment} = state;
+  const disabled = isInProgress ? 'disabled' : '';
   return `
     <form class="film-details__new-comment" action="#">
        <div class="film-details__add-emoji-label">
@@ -11,26 +12,26 @@ const getPopupNewCommentHtml = (state) => {
        </div>
 
         <label class="film-details__comment-label">
-          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${comment}</textarea>
+          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${disabled}>${comment}</textarea>
         </label>
 
         <div class="film-details__emoji-list">
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${disabled}>
           <label class="film-details__emoji-label" for="emoji-smile">
             <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emotion="smile">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${disabled}>
           <label class="film-details__emoji-label" for="emoji-sleeping">
             <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emotion="sleeping">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${disabled}>
           <label class="film-details__emoji-label" for="emoji-puke">
             <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emotion="puke">
           </label>
 
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
+          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${disabled}>
           <label class="film-details__emoji-label" for="emoji-angry">
             <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emotion="angry">
           </label>
@@ -40,17 +41,17 @@ const getPopupNewCommentHtml = (state) => {
 };
 
 export default class PopupNewCommentForm extends SmartView {
-  constructor() {
+  constructor(isInProgress) {
     super();
+    this._isInProgress = isInProgress;
     this.resetState();
     this._emotionToggleHandler = this._emotionToggleHandler.bind(this);
     this._textAreaInputHandler = this._textAreaInputHandler.bind(this);
-
     this._setInnerHandlers();
   }
 
   getTemplate() {
-    return getPopupNewCommentHtml(this._state);
+    return getPopupNewCommentHtml(this._state, this._isInProgress);
   }
 
   _setInnerHandlers() {

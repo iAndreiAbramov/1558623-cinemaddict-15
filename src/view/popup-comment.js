@@ -1,6 +1,6 @@
-import {EmotionsImages} from '../mock-data/data-sets';
 import {formatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
+import {EmotionsImages} from '../const';
 
 const getCommentItemHtml = (commentDataItem, isDeleting) => {
   const {author, comment, date, emotion} = commentDataItem;

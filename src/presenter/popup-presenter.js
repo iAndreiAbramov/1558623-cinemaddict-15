@@ -6,6 +6,7 @@ import {getCommentIndexById, isEscEvent} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
+import WaitOverlay from '../view/wait-overlay';
 
 const COMMENTS_DELETION_COUNT = 1;
 
@@ -16,10 +17,12 @@ export default class PopupPresenter {
     this._api = api;
     this._movieId = this._movieItem.id;
     this._popup = new Popup(this._movieItem);
+    this._waitOverlay = new WaitOverlay();
     this._popupDOMElement = this._popup.getElement();
     this._closeButton = this._popupDOMElement.querySelector('.film-details__close-btn');
     this._controlsContainer = this._popupDOMElement.querySelector('.film-details__top-container');
     this._commentsContainer = this._popupDOMElement.querySelector('.film-details__comments-list');
+    this._newCommentFormContainer = this._popupDOMElement.querySelector('.film-details__comments-wrap');
     this._commentsNumber = this._popupDOMElement.querySelector('.film-details__comments-count');
     this._comments = [];
     this._newCommentForm = null;
@@ -60,11 +63,11 @@ export default class PopupPresenter {
   }
 
   _clear() {
+    this._disableNewCommentForm();
     this._popupDOMElement.remove();
     this._isOpened = false;
     this._comments = [];
     this._shownComments.clear();
-    document.removeEventListener('keydown', this._handleFormSubmit);
   }
 
   _show() {
@@ -75,7 +78,6 @@ export default class PopupPresenter {
     this._renderNewCommentForm();
     document.addEventListener('keydown', this._handleEscKeydown);
     this._closeButton.addEventListener('click', this._closePopupByClick);
-    document.addEventListener('keydown', this._handleFormSubmit);
   }
 
   _getCommentsFromApi() {
@@ -108,6 +110,7 @@ export default class PopupPresenter {
   }
 
   _renderComments() {
+    insertDOMElement(document.body, this._waitOverlay, Positions.BEFOREEND);
     this._shownComments.forEach((comment) => {
       comment.remove();
     });
@@ -115,19 +118,23 @@ export default class PopupPresenter {
     this._getCommentsFromApi()
       .then(() => {
         this._comments = sortCommentsByDate(this._comments);
-
         this._comments.forEach((commentItem) => {
           const comment = new CommentItem(commentItem);
           comment.setCommentDeleteCallback(this._handleCommentDeletion);
           insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
           this._shownComments.set(commentItem.id, comment);
         });
+      })
+      .then(() => {
+        this._waitOverlay.getElement().remove();
+        this._enableNewCommentForm();
       });
   }
 
   _renderNewCommentForm() {
     this._newCommentForm = new PopupNewCommentForm();
-    insertDOMElement(this._commentsContainer, this._newCommentForm, Positions.AFTEREND);
+
+    insertDOMElement(this._newCommentFormContainer, this._newCommentForm, Positions.BEFOREEND);
   }
 
   _updateNewCommentForm() {
@@ -146,7 +153,17 @@ export default class PopupPresenter {
     }
   }
 
+  _disableNewCommentForm() {
+    document.removeEventListener('keydown', this._handleFormSubmit);
+  }
+
+  _enableNewCommentForm() {
+    document.addEventListener('keydown', this._handleFormSubmit);
+  }
+
   _handleCommentAddition(comment) {
+    insertDOMElement(document.body, this._waitOverlay, Positions.BEFOREEND);
+    this._disableNewCommentForm();
     this._api.postComment(this._movieId, comment)
       .then((response) => {
         this._comments = [...response.comments];
@@ -163,14 +180,25 @@ export default class PopupPresenter {
         this._shownComments.set(this._addedComment.id, this._addedComment);
         this._commentsNumber.textContent = this._shownComments.size;
         insertDOMElement(this._commentsContainer, this._addedComment, Positions.BEFOREEND);
+        this._waitOverlay.getElement().remove();
+        this._enableNewCommentForm();
+      })
+      .catch(() => {
+        this._enableNewCommentForm();
+        this._waitOverlay.getElement().remove();
       });
   }
 
-  _handleCommentDeletion(id) {
+  _renderCommentOnDeletion(id) {
     const index = getCommentIndexById(this._comments, id);
     const updatedComment = new CommentItem(this._comments[index], true);
     replaceDOMElement(this._commentsContainer, updatedComment.getElement(), this._shownComments.get(id).getElement());
     this._shownComments.set(id, updatedComment);
+  }
+
+  _handleCommentDeletion(id) {
+    this._disableNewCommentForm();
+    this._renderCommentOnDeletion(id);
     this._api.deleteComment(id)
       .then(() => {
         const updatedMovie = Object.assign({}, this._movieItem);
@@ -182,6 +210,7 @@ export default class PopupPresenter {
         this._shownComments.get(id).getElement().remove();
         this._shownComments.delete(id);
         this._commentsNumber.textContent = this._shownComments.size;
+        this._enableNewCommentForm();
       });
   }
 
