@@ -2,9 +2,9 @@ import * as he from 'he';
 import SmartView from './smart';
 import {EmotionsImages} from '../const';
 
-const getPopupNewCommentHtml = (state, isInProgress) => {
+const getPopupNewCommentHtml = (state, isDisabled) => {
   const {emotion, comment} = state;
-  const disabled = isInProgress ? 'disabled' : '';
+  const disabled = isDisabled ? 'disabled' : '';
   return `
     <form class="film-details__new-comment" action="#">
        <div class="film-details__add-emoji-label">
@@ -41,9 +41,9 @@ const getPopupNewCommentHtml = (state, isInProgress) => {
 };
 
 export default class PopupNewCommentForm extends SmartView {
-  constructor(isInProgress) {
+  constructor() {
     super();
-    this._isInProgress = isInProgress;
+    this._isDisabled = false;
     this.resetState();
     this._emotionToggleHandler = this._emotionToggleHandler.bind(this);
     this._textAreaInputHandler = this._textAreaInputHandler.bind(this);
@@ -51,7 +51,11 @@ export default class PopupNewCommentForm extends SmartView {
   }
 
   getTemplate() {
-    return getPopupNewCommentHtml(this._state, this._isInProgress);
+    return getPopupNewCommentHtml(this._state, this._isDisabled);
+  }
+
+  set isDisabled(value) {
+    this._isDisabled = value;
   }
 
   _setInnerHandlers() {
@@ -68,9 +72,9 @@ export default class PopupNewCommentForm extends SmartView {
   }
 
   _emotionToggleHandler(evt) {
-    if (evt.target.dataset.emotion) {
+    if (evt.target.value) {
       this.updateState({
-        emotion: evt.target.dataset.emotion,
+        emotion: evt.target.value,
       });
       this.updateElement();
     }

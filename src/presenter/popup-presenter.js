@@ -76,6 +76,7 @@ export default class PopupPresenter {
     this._renderControls();
     this._renderComments();
     this._renderNewCommentForm();
+    this._disableNewCommentForm();
     document.addEventListener('keydown', this._handleEscKeydown);
     this._closeButton.addEventListener('click', this._closePopupByClick);
   }
@@ -133,7 +134,6 @@ export default class PopupPresenter {
 
   _renderNewCommentForm() {
     this._newCommentForm = new PopupNewCommentForm();
-
     insertDOMElement(this._newCommentFormContainer, this._newCommentForm, Positions.BEFOREEND);
   }
 
@@ -155,10 +155,14 @@ export default class PopupPresenter {
 
   _disableNewCommentForm() {
     document.removeEventListener('keydown', this._handleFormSubmit);
+    this._newCommentForm.isDisabled = true;
+    this._newCommentForm.updateElement();
   }
 
   _enableNewCommentForm() {
     document.addEventListener('keydown', this._handleFormSubmit);
+    this._newCommentForm.isDisabled = false;
+    this._newCommentForm.updateElement();
   }
 
   _handleCommentAddition(comment) {
