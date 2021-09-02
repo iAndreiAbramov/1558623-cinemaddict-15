@@ -196,16 +196,16 @@ export default class PopupPresenter {
       });
   }
 
-  _renderCommentOnDeletion(id) {
+  _renderCommentOnDeletion(id, flag) {
     const index = getCommentIndexById(this._comments, id);
-    const updatedComment = new CommentItem(this._comments[index], true);
+    const updatedComment = new CommentItem(this._comments[index], flag);
     replaceDOMElement(this._commentsContainer, updatedComment.getElement(), this._shownComments.get(id).getElement());
     this._shownComments.set(id, updatedComment);
   }
 
   _handleCommentDeletion(id) {
     this._disableNewCommentForm();
-    this._renderCommentOnDeletion(id);
+    this._renderCommentOnDeletion(id, true);
     this._api.deleteComment(id)
       .then(() => {
         const updatedMovie = Object.assign({}, this._movieItem);
@@ -217,6 +217,10 @@ export default class PopupPresenter {
         this._shownComments.get(id).getElement().remove();
         this._shownComments.delete(id);
         this._commentsNumber.textContent = this._shownComments.size;
+        this._enableNewCommentForm();
+      })
+      .catch(() => {
+        this._renderCommentOnDeletion(id, false);
         this._enableNewCommentForm();
       });
   }
