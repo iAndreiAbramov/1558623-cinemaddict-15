@@ -2,7 +2,7 @@ import Popup from '../view/popup';
 import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
-import {isEscEvent} from '../utils/common';
+import {getCommentIndexById, isEscEvent} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
@@ -120,7 +120,7 @@ export default class PopupPresenter {
           const comment = new CommentItem(commentItem);
           comment.setCommentDeleteCallback(this._handleCommentDeletion);
           insertDOMElement(this._commentsContainer, comment, Positions.BEFOREEND);
-          this._shownComments.set(commentItem.id, comment.getElement());
+          this._shownComments.set(commentItem.id, comment);
         });
       });
   }
@@ -160,22 +160,26 @@ export default class PopupPresenter {
       .then(() => {
         this._addedComment = new CommentItem(this._comments.slice().pop());
         this._addedComment.setCommentDeleteCallback(this._handleCommentDeletion);
-        this._shownComments.set(this._addedComment.id, this._addedComment.getElement());
+        this._shownComments.set(this._addedComment.id, this._addedComment);
         this._commentsNumber.textContent = this._shownComments.size;
         insertDOMElement(this._commentsContainer, this._addedComment, Positions.BEFOREEND);
       });
   }
 
   _handleCommentDeletion(id) {
+    const index = getCommentIndexById(this._comments, id);
+    const updatedComment = new CommentItem(this._comments[index], true);
+    replaceDOMElement(this._commentsContainer, updatedComment.getElement(), this._shownComments.get(id).getElement());
+    this._shownComments.set(id, updatedComment);
     this._api.deleteComment(id)
       .then(() => {
         const updatedMovie = Object.assign({}, this._movieItem);
-        const index = updatedMovie.comments.findIndex((item) => +item.id === +id);
-        updatedMovie.comments.splice(index, COMMENTS_DELETION_COUNT);
+        const commentIndex = updatedMovie.comments.findIndex((item) => +item.id === +id);
+        updatedMovie.comments.splice(commentIndex, COMMENTS_DELETION_COUNT);
         this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
       })
       .then(() => {
-        this._shownComments.get(id).remove();
+        this._shownComments.get(id).getElement().remove();
         this._shownComments.delete(id);
         this._commentsNumber.textContent = this._shownComments.size;
       });

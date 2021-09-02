@@ -2,9 +2,10 @@ import {EmotionsImages} from '../mock-data/data-sets';
 import {formatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
 
-const getCommentItemHtml = (commentDataItem) => {
+const getCommentItemHtml = (commentDataItem, isDeleting) => {
   const {author, comment, date, emotion} = commentDataItem;
   const relativeDate = formatDateForComments(date);
+  const deletingText = isDeleting ? 'Deleting' : 'Delete';
   return `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -15,7 +16,7 @@ const getCommentItemHtml = (commentDataItem) => {
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${relativeDate}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button class="film-details__comment-delete">${deletingText}</button>
         </p>
       </div>
     </li>
@@ -23,23 +24,24 @@ const getCommentItemHtml = (commentDataItem) => {
 };
 
 export default class CommentItem extends AbstractView {
-  constructor(commentDataItem) {
+  constructor(commentDataItem, isDeleting = false) {
     super();
-    this._commentdataItem = commentDataItem;
+    this._commentDataItem = commentDataItem;
+    this._isDeleting = isDeleting;
     this._commentDeleteCallback = this._commentDeleteCallback.bind(this);
   }
 
   getTemplate() {
-    return getCommentItemHtml(this._commentdataItem);
+    return getCommentItemHtml(this._commentDataItem, this._isDeleting);
   }
 
   get id() {
-    return this._commentdataItem.id;
+    return this._commentDataItem.id;
   }
 
   _commentDeleteCallback(evt) {
     evt.preventDefault();
-    this._callback.commentDelete(this._commentdataItem.id);
+    this._callback.commentDelete(this._commentDataItem.id);
   }
 
   setCommentDeleteCallback(callback) {
