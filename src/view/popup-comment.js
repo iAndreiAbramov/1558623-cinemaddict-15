@@ -6,6 +6,7 @@ const getCommentItemHtml = (commentDataItem, isDeleting) => {
   const {author, comment, date, emotion} = commentDataItem;
   const relativeDate = formatDateForComments(date);
   const deletingText = isDeleting ? 'Deleting' : 'Delete';
+  const disabled = isDeleting ? 'disabled' : '';
   return `
     <li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -16,7 +17,7 @@ const getCommentItemHtml = (commentDataItem, isDeleting) => {
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${relativeDate}</span>
-          <button class="film-details__comment-delete">${deletingText}</button>
+          <button class="film-details__comment-delete" ${disabled}>${deletingText}</button>
         </p>
       </div>
     </li>

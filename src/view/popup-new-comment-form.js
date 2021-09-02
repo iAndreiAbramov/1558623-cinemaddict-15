@@ -2,11 +2,12 @@ import * as he from 'he';
 import SmartView from './smart';
 import {EmotionsImages} from '../const';
 
-const getPopupNewCommentHtml = (state, isDisabled) => {
+const getPopupNewCommentHtml = (state, isDisabled, isRejected) => {
   const {emotion, comment} = state;
   const disabled = isDisabled ? 'disabled' : '';
+  const rejected = isRejected ? 'shake' : '';
   return `
-    <form class="film-details__new-comment" action="#">
+    <form class="film-details__new-comment ${rejected}" action="#">
        <div class="film-details__add-emoji-label">
         ${emotion ? `<img src=${EmotionsImages[emotion]} width="68" height="68" alt="emoji preview">` : ''}
        </div>
@@ -44,6 +45,7 @@ export default class PopupNewCommentForm extends SmartView {
   constructor() {
     super();
     this._isDisabled = false;
+    this._isRejected = false;
     this.resetState();
     this._emotionToggleHandler = this._emotionToggleHandler.bind(this);
     this._textAreaInputHandler = this._textAreaInputHandler.bind(this);
@@ -51,11 +53,15 @@ export default class PopupNewCommentForm extends SmartView {
   }
 
   getTemplate() {
-    return getPopupNewCommentHtml(this._state, this._isDisabled);
+    return getPopupNewCommentHtml(this._state, this._isDisabled, this._isRejected);
   }
 
   set isDisabled(value) {
     this._isDisabled = value;
+  }
+
+  set isRejected(value) {
+    this._isRejected = value;
   }
 
   _setInnerHandlers() {

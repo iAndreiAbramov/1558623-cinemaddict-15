@@ -190,6 +190,9 @@ export default class PopupPresenter {
       .catch(() => {
         this._enableNewCommentForm();
         this._waitOverlay.getElement().remove();
+        this._newCommentForm.isRejected = true;
+        this._newCommentForm.updateElement();
+        this._newCommentForm.isRejected = false;
       });
   }
 
