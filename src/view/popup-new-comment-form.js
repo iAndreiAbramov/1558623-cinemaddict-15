@@ -56,8 +56,16 @@ export default class PopupNewCommentForm extends SmartView {
     return getPopupNewCommentHtml(this._state, this._isDisabled, this._isRejected);
   }
 
+  get isDisabled() {
+    return this._isDisabled;
+  }
+
   set isDisabled(value) {
     this._isDisabled = value;
+  }
+
+  get isRejected() {
+    return this._isRejected;
   }
 
   set isRejected(value) {
