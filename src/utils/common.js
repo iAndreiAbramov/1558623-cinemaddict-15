@@ -28,19 +28,19 @@ export const getRandomSubArray = (arrayOfItems) => arrayOfItems.filter(() => get
 export const getRandomDescription = (arrayOfStrings) => arrayOfStrings.slice(0, getRandomInteger(1, 5)).join(' ');
 
 export const getShortDescription = (description, maxLength) => {
-  if (description.length > maxLength) {
+  if (description && description.length > maxLength) {
     description = `${description.substr(0, maxLength)}...`;
   }
-  return description;
+  return description || '';
 };
 
 export const getGenresList = (arrayOfMovies) => {
   if (arrayOfMovies.length === 0) {
-    return null;
+    return {};
   }
   const genresList = {};
   arrayOfMovies.forEach((movie) => {
-    const movieGenres = movie.filmInfo.genre.trim().split(' ').filter((item) => item !== ' ');
+    const movieGenres = movie.filmInfo.genre.filter((item) => item !== ' ');
     movieGenres.forEach((genre) => {
       if (genre) {
         if (genre in genresList) {
@@ -64,7 +64,7 @@ export const getTopGenre = (arrayOfMovies) => {
 
 export const getMovieById = (arrayOfMovies, identifier) => arrayOfMovies.find((item) => +item.id === +identifier);
 
-export const getMovieIndexById = (arrayOfMovies, identifier) => arrayOfMovies.findIndex((item) => +item.id === +identifier);
+export const getCommentIndexById = (comments, identifier) => comments.findIndex((item) => +item.id === +identifier);
 
 export const getMovieId = (() => {
   let id = 0;

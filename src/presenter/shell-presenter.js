@@ -17,10 +17,12 @@ import ChartView from '../view/chart';
 import {ChartOptions} from '../const';
 import {filterMoviesByPeriod} from '../utils/date';
 import StatsSummary from '../view/stats-summary';
+import LoadingMessage from '../view/loading-message';
 
 export default class ShellPresenter {
-  constructor(moviesModel) {
+  constructor(moviesModel, api) {
     this._moviesModel = moviesModel;
+    this._api = api;
     this._userRankContainer = document.querySelector('.header');
     this._mainContainer = document.querySelector('.main');
     this._numberOfFilmsContainer = document.querySelector('.footer__statistics');
@@ -40,10 +42,12 @@ export default class ShellPresenter {
     this._filmListPresenter = null;
     this._extraPresenter = null;
 
-    this._listsContainer = null;
     this._userRank = null;
+    this._numberOfFilms = null;
     this._filtersMenu = null;
     this._sortMenu = null;
+    this._listsContainer = null;
+    this._loadingMessage = null;
     this._popup = null;
     this._statsContainer = null;
     this._statsSummary = null;
@@ -53,18 +57,30 @@ export default class ShellPresenter {
     this._currentSortOption = SortOptions.DEFAULT;
     this._currentMenuOption = Filters.ALL;
     this._currentStatsFilter = StatsFilters.ALL;
+    this._isLoading = true;
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
 
   init() {
-    this._renderFilmsNumber(this._getMovies());
-    this._renderUserRank();
+    if (this._loadingMessage) {
+      this._loadingMessage.getElement().remove();
+      this._loadingMessage.deleteElement();
+    }
     this._renderFiltersMenu();
-    this._renderSortMenu(this._currentSortOption);
-    this._renderFilmsContainers();
-    this._renderFilmsList(this._getMovies());
-    this._renderExtraContainers();
+    this._renderFilmsNumber(this._getMovies());
+    if (this._isLoading) {
+      this._filtersMenu.removeFilterToggleCallback(this._handleFilterChange);
+      this._filtersMenu.removeSwitchToStatsCallback(this._handleSwitchToStats);
+      this._filtersMenu.removeSwitchToFilmsCallback(this._handleSwitchToFilms);
+      this._renderLoading();
+    } else {
+      this._renderUserRank();
+      this._renderSortMenu(this._currentSortOption);
+      this._renderFilmsContainers();
+      this._renderFilmsList(this._getMovies());
+      this._renderExtraContainers();
+    }
   }
 
   _handleModelEvent(updateType) {
@@ -81,7 +97,15 @@ export default class ShellPresenter {
         this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        this.init();
     }
+  }
+
+  _renderLoading() {
+    this._loadingMessage = new LoadingMessage();
+    insertDOMElement(this._filtersMenu, this._loadingMessage, Positions.AFTEREND);
   }
 
   _handleStatsFilterToggle(evt) {
@@ -102,6 +126,7 @@ export default class ShellPresenter {
   }
 
   _handleSwitchToStats(evt) {
+    evt.preventDefault();
     if (this._currentScreen !== Screens.STATS) {
       this._currentMenuOption = evt.target.dataset.option;
       this._currentScreen = evt.target.dataset.screen;
@@ -132,6 +157,7 @@ export default class ShellPresenter {
   }
 
   _handleSwitchToFilms(evt) {
+    evt.preventDefault();
     this._currentMenuOption = evt.target.dataset.option;
     this._statsContainer.getElement().remove();
     this._renderFiltersMenu();
@@ -163,8 +189,11 @@ export default class ShellPresenter {
   }
 
   _renderFilmsNumber(data) {
-    const numberOfFilms = new NumberOfFilms(data);
-    insertDOMElement(this._numberOfFilmsContainer, numberOfFilms, Positions.BEFOREEND);
+    if (this._numberOfFilms) {
+      this._numberOfFilms.getElement().remove();
+    }
+    this._numberOfFilms = new NumberOfFilms(data);
+    insertDOMElement(this._numberOfFilmsContainer, this._numberOfFilms, Positions.BEFOREEND);
   }
 
   _renderUserRank() {
@@ -177,23 +206,22 @@ export default class ShellPresenter {
 
   _renderFiltersMenu() {
     if (this._filtersMenu) {
-      this._filtersMenu.remove();
+      this._filtersMenu.getElement().remove();
     }
     const filtersData = {
       watchlist: this._getMovies(Filters.WATCHLIST),
       history: this._getMovies(Filters.HISTORY),
       favorite: this._getMovies(Filters.FAVORITE),
     };
-    const filtersMenu = new FiltersMenu(
+    this._filtersMenu = new FiltersMenu(
       filtersData,
       Filters[this._currentMenuOption] || null,
       this._currentScreen,
     );
-    filtersMenu.setFilterToggleCallback(this._handleFilterChange);
-    filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
-    filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
-    this._filtersMenu = filtersMenu.getElement();
-    insertDOMElement(this._mainContainer, filtersMenu, Positions.AFTERBEGIN);
+    this._filtersMenu.setFilterToggleCallback(this._handleFilterChange);
+    this._filtersMenu.setSwitchToStatsCallback(this._handleSwitchToStats);
+    this._filtersMenu.setSwitchToFilmsCallback(this._handleSwitchToFilms);
+    insertDOMElement(this._mainContainer, this._filtersMenu, Positions.AFTERBEGIN);
   }
 
   _renderSortMenu(option = 'default') {
@@ -241,6 +269,7 @@ export default class ShellPresenter {
   }
 
   _handleFilterChange(evt) {
+    evt.preventDefault();
     this._renderFilmsContainers();
     this._currentScreen = evt.target.dataset.screen;
     const filter = evt.target.dataset.option;
@@ -266,7 +295,7 @@ export default class ShellPresenter {
     if (!this._popup || !this._popup.isOpened) {
       const targetId = +evt.target.closest('article').getAttribute('data-id');
       const movieItem = getMovieById(this._getMovies(), targetId);
-      const filmPopup = new PopupPresenter(movieItem, this._moviesModel);
+      const filmPopup = new PopupPresenter(movieItem, this._moviesModel, this._api);
       filmPopup.init();
       this._popup = filmPopup;
     }
@@ -282,7 +311,11 @@ export default class ShellPresenter {
         getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-      this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, updatedMovie);
+      this._api.putMovie(id, this._moviesModel.adaptMovieToServer(updatedMovie))
+        .then((movie) => this._moviesModel.updateMovie(
+          UpdateType.ALL_LISTS_SOFT,
+          this._moviesModel.adaptMovieToClient(movie),
+        ));
     }
   }
 }

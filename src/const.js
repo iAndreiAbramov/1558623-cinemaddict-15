@@ -11,6 +11,7 @@ export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
   POPUP_CONTROLS: 'POPUP_CONTROLS',
   COMMENT: 'COMMENT',
+  INIT: 'INIT',
 };
 
 export const Filters = {
@@ -97,4 +98,11 @@ export const ChartOptions = {
       enabled: false,
     },
   },
+};
+
+export const EmotionsImages = {
+  'angry': './images/emoji/angry.png',
+  'sleeping': './images/emoji/sleeping.png',
+  'puke': './images/emoji/puke.png',
+  'smile': './images/emoji/smile.png',
 };

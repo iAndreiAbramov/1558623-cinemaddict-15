@@ -24,11 +24,8 @@ export default class SmartView extends AbstractView {
 
   resetState() {
     const update = {
-      id: 0,
-      author: 'You',
       emotion: 'smile',
       comment: '',
-      date: '',
     };
     this.updateState(update);
   }

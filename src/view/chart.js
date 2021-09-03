@@ -13,7 +13,8 @@ export default class ChartView extends AbstractView {
   constructor(watchedMovies, chartOptions) {
     super();
     this._watchedMovies = watchedMovies;
-    this._genres = new Map(Object.entries(getGenresList(this._watchedMovies)).sort((a, b) => b[1] - a[1]));
+    this._genresList = getGenresList(this._watchedMovies);
+    this._genres = new Map(Object.entries(this._genresList).sort((a, b) => b[1] - a[1]));
     this._statisticCtx = this.getElement().querySelector('.statistic__chart');
     this._statisticCtx.height = BAR_HEIGHT * this._genres.size;
     this._chartOptions = chartOptions;

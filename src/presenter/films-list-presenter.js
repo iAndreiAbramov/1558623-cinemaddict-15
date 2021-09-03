@@ -24,10 +24,6 @@ export default class FilmsListPresenter {
     };
   }
 
-  get shownCards() {
-    return this._shownCards;
-  }
-
   init() {
     this.clear();
     this.renderDefault(this._data);

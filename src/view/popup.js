@@ -5,7 +5,7 @@ const getPopupHtml = (filmData) => {
   const {id, comments, filmInfo} = filmData;
   const releaseDate= formatDate(filmInfo.release.date,'DD MMMM YYYY');
   const runtime = getDurationFromMinutes(filmInfo.runtime) || '';
-  const genres = filmInfo.genre.split(' ').length > 1 ? 'Gengres' : 'Genre';
+  const genres = filmInfo.genre.length > 1 ? 'Gengres' : 'Genre';
   return `
     <section class="film-details" data-id="${id}">
     <div class="film-details__inner" action="#" method="get">
@@ -37,11 +37,11 @@ const getPopupHtml = (filmData) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Writers</td>
-                <td class="film-details__cell">${filmInfo.writers}</td>
+                <td class="film-details__cell">${filmInfo.writers.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Actors</td>
-                <td class="film-details__cell">${filmInfo.actors}</td>
+                <td class="film-details__cell">${filmInfo.actors.join(', ')}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
@@ -58,7 +58,7 @@ const getPopupHtml = (filmData) => {
               <tr class="film-details__row">
                 <td class="film-details__term">${genres}</td>
                 <td class="film-details__cell">
-                  <span class="film-details__genre">${filmInfo.genre}</span>
+                  <span class="film-details__genre">${filmInfo.genre.join(', ')}</span>
               </tr>
             </tbody></table>
 
