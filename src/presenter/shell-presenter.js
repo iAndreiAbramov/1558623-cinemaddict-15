@@ -88,13 +88,11 @@ export default class ShellPresenter {
       case UpdateType.ALL_LISTS_SOFT:
         this._renderFiltersMenu();
         this._renderUserRank();
-        this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
+        this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
-        this._filmListPresenter.clear();
-        this._filmListPresenter.renderDefault(this._getMovies(Filters[this._currentMenuOption]));
+        this._filmListPresenter.init(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       case UpdateType.INIT:
@@ -246,11 +244,11 @@ export default class ShellPresenter {
     insertDOMElement(this._listsContainer, this._mostCommentedContainer, Positions.BEFOREEND);
   }
 
-  _renderFilmsList(data) {
+  _renderFilmsList(data, filter) {
     if (this._filmListPresenter) {
       this._filmListPresenter.clear();
     }
-    this._filmListPresenter = new FilmsListPresenter(data);
+    this._filmListPresenter = new FilmsListPresenter(data, filter);
     this._filmListPresenter.init();
   }
 
@@ -278,7 +276,7 @@ export default class ShellPresenter {
     }
     this._currentMenuOption = filter;
     this._currentSortOption = SortOptions.DEFAULT;
-    this._renderFilmsList(this._getMovies(Filters[filter]));
+    this._renderFilmsList(this._getMovies(Filters[filter]), filter);
     this._renderFiltersMenu();
     this._renderSortMenu();
   }

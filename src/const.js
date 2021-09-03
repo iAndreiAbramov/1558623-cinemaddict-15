@@ -7,6 +7,13 @@ export const UserRankGrades = {
   MOVIE_BUFF: 21,
 };
 
+export const MessagesForEmptyFilters = {
+  ALL: 'There are no movies in our database',
+  WATCHLIST: 'There are no movies to watch now',
+  HISTORY: 'There are no watched movies now',
+  FAVORITE: 'There are no favorite movies now',
+};
+
 export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
   POPUP_CONTROLS: 'POPUP_CONTROLS',
