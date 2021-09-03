@@ -88,7 +88,7 @@ export default class ShellPresenter {
       case UpdateType.ALL_LISTS_SOFT:
         this._renderFiltersMenu();
         this._renderUserRank();
-        this._filmListPresenter.init(this._getMovies(Filters[this._currentMenuOption]));
+        this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
