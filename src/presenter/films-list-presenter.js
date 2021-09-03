@@ -2,13 +2,15 @@ import FilmCard from '../view/film-card';
 import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
+import {MessagesForEmptyFilters} from '../const';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
 
 export default class FilmsListPresenter {
-  constructor(data) {
+  constructor(data, filter) {
     this._data = data;
+    this._filter = filter;
     this._container = document.querySelectorAll('.films-list__container')[0];
     this._showMoreButton = new MoreButton();
     this._shownCards = new Map();
@@ -36,7 +38,7 @@ export default class FilmsListPresenter {
     this._shownCards.clear();
     this._showMoreButton.getElement().remove();
     if (this._messageElement) {
-      this._messageElement.remove();
+      this._messageElement.getElement().remove();
     }
   }
 
@@ -65,27 +67,12 @@ export default class FilmsListPresenter {
   }
 
   _renderEmpty() {
-    const getMessageForEmpty = (option) => {
-      const messagesForEmpty = {
-        '#all': 'There are no movies in our database',
-        '#watchlist': 'There are no movies to watch now',
-        '#history': 'There are no watched movies now',
-        '#favorites': 'There are no favorite movies now',
-      };
-      return messagesForEmpty[option];
-    };
-
-    const getMessageOption = () => {
-      if (this._messageElement) {
-        this._messageElement.remove();
-      }
-      const activeFilterElement = document.querySelector('.main-navigation__item--active');
-      return activeFilterElement.getAttribute('href');
-    };
-    const message = getMessageForEmpty(getMessageOption());
-    const messageElement = new MessageForEmptyList(message);
-    this._messageElement = messageElement.getElement();
-    insertDOMElement(this._container, messageElement, Positions.AFTERBEGIN);
+    if (this._messageElement) {
+      this._messageElement.getElement().remove();
+    }
+    const message = MessagesForEmptyFilters[this._filter];
+    this._messageElement = new MessageForEmptyList(message);
+    insertDOMElement(this._container, this._messageElement, Positions.AFTERBEGIN);
   }
 
   _handleMoreButtonClick() {
