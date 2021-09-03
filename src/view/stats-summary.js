@@ -4,8 +4,9 @@ import {getTopGenre} from '../utils/common';
 import AbstractView from './abstract-view';
 
 const getStatsSummaryHTML = (watchedMovies) => {
-  const totalHours = dayjs.duration(getTotalDuration(watchedMovies), 'minutes').hours();
-  const totalMinutes = dayjs.duration(getTotalDuration(watchedMovies), 'minutes').minutes();
+  const minutes = dayjs.duration(getTotalDuration(watchedMovies), 'minutes');
+  const totalHours = Math.floor(minutes.clone().asHours());
+  const totalMinutes = minutes.clone().minutes();
   const topGenre = getTopGenre(watchedMovies);
 
   return `

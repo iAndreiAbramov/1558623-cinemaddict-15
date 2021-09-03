@@ -1,18 +1,13 @@
 import dayjs from 'dayjs';
-import {getRandomInteger} from './common';
 
 // eslint-disable-next-line no-undef
 const relativeTime = require('dayjs/plugin/relativeTime');
+dayjs.extend(relativeTime);
 // eslint-disable-next-line no-undef
 const duration = require('dayjs/plugin/duration');
-dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
-const DATE_INTERVAL_IN_DAYS = 364;
 const DEFAULT_TIME_UNITS_NUMBER = 1;
-
-// Возвращает случайную дату в интервале 365 дней назад с текущей даты по текущую дату в указанном формате.
-export const getRandomDate = () => dayjs().subtract(getRandomInteger(DEFAULT_TIME_UNITS_NUMBER, DATE_INTERVAL_IN_DAYS), 'day');
 
 export const formatDate = (date, format) => dayjs(date).format(format);
 
@@ -23,7 +18,10 @@ export const getDurationFromMinutes = (durationInMinutes) => {
   return `${lasting.hours()}h ${lasting.minutes()}m`;
 };
 
-export const getTotalDuration = (arrayOfMovies) => arrayOfMovies.reduce((acc, cur) => acc += cur.filmInfo.runtime, 0);
+export const getTotalDuration = (arrayOfMovies) => arrayOfMovies.reduce((acc, cur) => {
+  acc += cur.filmInfo.runtime;
+  return acc;
+}, 0);
 
 export const filterMoviesByPeriod = (arrayOfMovies, period) => {
   const deadline = dayjs().subtract(DEFAULT_TIME_UNITS_NUMBER, period);
