@@ -26,9 +26,9 @@ export default class FilmsListPresenter {
     };
   }
 
-  init() {
+  init(data = this._data) {
     this.clear();
-    this.renderDefault(this._data);
+    this.renderDefault(data);
   }
 
   clear() {
