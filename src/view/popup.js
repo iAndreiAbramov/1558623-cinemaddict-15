@@ -8,7 +8,7 @@ const getPopupHtml = (filmData) => {
   const genres = filmInfo.genre.length > 1 ? 'Gengres' : 'Genre';
   return `
     <section class="film-details" data-id="${id}">
-    <div class="film-details__inner" action="#" method="get">
+    <div class="film-details__inner">
       <div class="film-details__top-container">
         <div class="film-details__close">
           <button class="film-details__close-btn" type="button">close</button>

@@ -14,14 +14,6 @@ export default class ExtraPresenter {
     this._shownMostCommented = new Map();
   }
 
-  get shownTopRated() {
-    return this._shownTopRated;
-  }
-
-  get shownMostCommented() {
-    return this._shownMostCommented;
-  }
-
   init() {
     this._renderTopRated();
     this._renderMostCommented();
