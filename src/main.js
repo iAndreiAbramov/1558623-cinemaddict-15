@@ -9,9 +9,20 @@ const moviesModel = new MoviesModel();
 const api = new Api(ENDPOINT, AUTHORIZATION);
 const shellPresenter = new ShellPresenter(moviesModel, api);
 
+
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .catch((error) => {
+        throw new Error(error);
+      });
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   shellPresenter.init();
   api.pullMovies()
     .then((movies) => moviesModel.setMovies(UpdateType.INIT, movies))
     .catch(() => moviesModel.setMovies(UpdateType.INIT, []));
 });
+
