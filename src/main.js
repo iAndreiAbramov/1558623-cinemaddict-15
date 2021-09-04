@@ -1,6 +1,6 @@
 import ShellPresenter from './presenter/shell-presenter';
 import MoviesModel from './model/movies-model';
-import Api from './api';
+import Api from './api/api';
 import {UpdateType} from './const';
 
 const ENDPOINT = 'https://15.ecmascript.pages.academy/cinemaddict';
