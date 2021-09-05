@@ -2,6 +2,7 @@ import ShellPresenter from './presenter/shell-presenter';
 import MoviesModel from './model/movies-model';
 import Api from './api/api';
 import {UpdateType} from './const';
+import {toast} from './utils/toast';
 
 const ENDPOINT = 'https://15.ecmascript.pages.academy/cinemaddict';
 const AUTHORIZATION = 'Basic jRp3s4Fv6Hh9Zv77';
@@ -26,3 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(() => moviesModel.setMovies(UpdateType.INIT, []));
 });
 
+window.addEventListener('offline', () => {
+  document.title = document.title += ' [offline]';
+  toast('Network connection: Disconnected');
+});
+
+window.addEventListener('online', () => {
+  document.title = document.title.replace(' [offline]', '');
+  toast('Network connection: Connected');
+});

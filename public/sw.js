@@ -21,9 +21,12 @@ self.addEventListener('install', (evt) => {
         './images/bitmap.png',
         './images/bitmap@2x.png',
         './images/bitmap@3x.png',
-        './images/emoji/',
-        './images/icons/',
-        './images/posters/',
+        './images/emoji/angry.png',
+        './images/emoji/smile.png',
+        './images/emoji/puke.png',
+        './images/emoji/sleeping.png',
+        './images/icons',
+        './images/posters',
       ])),
   );
 });

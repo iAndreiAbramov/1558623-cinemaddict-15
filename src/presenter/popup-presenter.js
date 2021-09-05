@@ -2,11 +2,12 @@ import Popup from '../view/popup';
 import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
-import {getCommentIndexById, isEscEvent} from '../utils/common';
+import {getCommentIndexById, isEscEvent, isOnline} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
 import {UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
 import WaitOverlay from '../view/wait-overlay';
+import {toast} from '../utils/toast';
 
 const COMMENTS_DELETION_COUNT = 1;
 
@@ -129,6 +130,10 @@ export default class PopupPresenter {
       .then(() => {
         this._waitOverlay.getElement().remove();
         this._enableNewCommentForm();
+      })
+      .catch(() => {
+        this._waitOverlay.getElement().remove();
+        toast('Sorry, cannot get comments while network is disconnected...');
       });
   }
 
@@ -188,6 +193,7 @@ export default class PopupPresenter {
         this._enableNewCommentForm();
       })
       .catch(() => {
+        toast('Sorry, adding new comment is unavailable in offline mod...');
         this._enableNewCommentForm();
         this._waitOverlay.getElement().remove();
         this._newCommentForm.isRejected = true;
@@ -204,6 +210,10 @@ export default class PopupPresenter {
   }
 
   _handleCommentDeletion(id) {
+    if (!isOnline()) {
+      toast('Sorry, comment deletion is unavailable in offline mod...');
+      return;
+    }
     this._disableNewCommentForm();
     this._renderCommentOnDeletion(id, true);
     this._api.deleteComment(id)
