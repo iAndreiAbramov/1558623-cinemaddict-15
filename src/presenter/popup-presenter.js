@@ -4,7 +4,7 @@ import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
 import {getCommentIndexById, isEscEvent, isOnline} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
-import {UpdateType} from '../const';
+import {NetworkMessages, UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
 import WaitOverlay from '../view/wait-overlay';
 import {toast} from '../utils/toast';
@@ -133,7 +133,7 @@ export default class PopupPresenter {
       })
       .catch(() => {
         this._waitOverlay.getElement().remove();
-        toast('Sorry, cannot get comments while network is disconnected...');
+        toast(NetworkMessages.COMMENTS_LOAD);
       });
   }
 
@@ -193,7 +193,7 @@ export default class PopupPresenter {
         this._enableNewCommentForm();
       })
       .catch(() => {
-        toast('Sorry, adding new comment is unavailable in offline mod...');
+        toast(NetworkMessages.COMMENT_ADD);
         this._enableNewCommentForm();
         this._waitOverlay.getElement().remove();
         this._newCommentForm.isRejected = true;
@@ -202,16 +202,18 @@ export default class PopupPresenter {
       });
   }
 
-  _renderCommentOnDeletion(id, flag) {
+  _renderCommentOnDeletion(id, isDeleting = false, online = true) {
     const index = getCommentIndexById(this._comments, id);
-    const updatedComment = new CommentItem(this._comments[index], flag);
+    const updatedComment = new CommentItem(this._comments[index], isDeleting, online);
+    updatedComment.setCommentDeleteCallback(this._handleCommentDeletion);
     replaceDOMElement(this._commentsContainer, updatedComment.getElement(), this._shownComments.get(id).getElement());
     this._shownComments.set(id, updatedComment);
   }
 
   _handleCommentDeletion(id) {
     if (!isOnline()) {
-      toast('Sorry, comment deletion is unavailable in offline mod...');
+      toast(NetworkMessages.COMMENT_DELETE);
+      this._renderCommentOnDeletion(id, false, false);
       return;
     }
     this._disableNewCommentForm();

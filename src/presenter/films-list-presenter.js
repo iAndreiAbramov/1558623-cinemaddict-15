@@ -2,12 +2,11 @@ import FilmCard from '../view/film-card';
 import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
-import {MessagesForEmptyFilters} from '../const';
+import {MessagesForEmptyFilters, NetworkMessages} from '../const';
 import {isOnline} from '../utils/common';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
-const OFFLINE_NOTIFICATION = 'Sorry, can\'t get movies while network is disconnected...';
 
 export default class FilmsListPresenter {
   constructor(data, filter) {
@@ -76,7 +75,7 @@ export default class FilmsListPresenter {
     let message = MessagesForEmptyFilters[this._filter];
 
     if(!isOnline()) {
-      message =  OFFLINE_NOTIFICATION;
+      message =  NetworkMessages.FILMS_LIST;
     }
 
     this._messageElement = new MessageForEmptyList(message);

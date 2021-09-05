@@ -14,6 +14,15 @@ export const MessagesForEmptyFilters = {
   FAVORITE: 'There are no favorite movies now',
 };
 
+export const NetworkMessages = {
+  DISCONNECT: 'Network connection: Disconnected',
+  CONNECT: 'Network connection: Connected',
+  FILMS_LIST: 'Sorry, can\'t get movies while network is disconnected...',
+  COMMENTS_LOAD: 'Sorry, cannot get comments while network is disconnected...',
+  COMMENT_ADD: 'Sorry, the addition of new comment is unavailable in offline mode...',
+  COMMENT_DELETE: 'Sorry, comment deletion is unavailable in offline mode...',
+};
+
 export const UpdateType = {
   ALL_LISTS_SOFT: 'ALL_LISTS_SOFT',
   POPUP_CONTROLS: 'POPUP_CONTROLS',
