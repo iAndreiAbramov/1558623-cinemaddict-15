@@ -1,6 +1,7 @@
 import FilmCard from '../view/film-card';
 import {insertDOMElement, Positions} from '../utils/render';
 import {sortData} from '../utils/sort-data';
+import {isOnline} from '../utils/common';
 
 const NUMBER_OF_EXTRA_CARDS = 2;
 
@@ -31,8 +32,10 @@ export default class ExtraPresenter {
   }
 
   _renderTopRated() {
-    const data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
-    if (!data.length) {
+    let data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
+    data = data.filter((item) => item.filmInfo.totalRating);
+    if (!data.length || !isOnline()) {
+      this._topRatedContainer.closest('section').remove();
       return;
     }
     data.forEach((dataItem) => {
@@ -44,8 +47,10 @@ export default class ExtraPresenter {
   }
 
   _renderMostCommented() {
-    const data = sortData(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
-    if (!data.length) {
+    let data = sortData(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
+    data = data.filter((item) => item.comments.length);
+    if (!data.length || !isOnline()) {
+      this._mostCommentedContainer.closest('section').remove();
       return;
     }
     data.forEach((dataItem) => {

@@ -92,6 +92,7 @@ export default class ShellPresenter {
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
+        this._renderFilmsContainers();
         this._filmListPresenter.init(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
@@ -233,7 +234,7 @@ export default class ShellPresenter {
 
   _renderFilmsContainers() {
     if (this._listsContainer) {
-      return;
+      this._listsContainer.getElement().remove();
     }
     this._listsContainer = new ListsContainer();
     this._listsContainer.setPopupOpenCallback(this._handlePopupOpen);
@@ -268,15 +269,16 @@ export default class ShellPresenter {
 
   _handleFilterChange(evt) {
     evt.preventDefault();
-    this._renderFilmsContainers();
     this._currentScreen = evt.target.dataset.screen;
     const filter = evt.target.dataset.option;
     if (this._currentMenuOption === filter) {
       return;
     }
+    this._renderFilmsContainers();
     this._currentMenuOption = filter;
     this._currentSortOption = SortOptions.DEFAULT;
     this._renderFilmsList(this._getMovies(Filters[filter]), filter);
+    this._renderExtraContainers();
     this._renderFiltersMenu();
     this._renderSortMenu();
   }
