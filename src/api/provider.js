@@ -1,15 +1,13 @@
 import {isOnline} from '../utils/common';
 import MoviesModel from '../model/movies-model';
 
-const getUpdatedMovies = (movies) => Object.values(movies).filter((item) => item.user_details);
+const getUpdatedMovies = (movies) => Object.values(movies).filter((item) => item.userDetails);
 
-const createStoreStructure = (data) => {
-  return data.reduce((acc, cur) => {
-    return Object.assign({}, acc, {
-      [cur.id]: MoviesModel.adaptMovieToClient(cur),
-    });
-  }, {});
-};
+const createStoreStructure = (data) => data.reduce((acc, cur) => Object.assign(
+  {},
+  acc,
+  {[cur.id]: cur},
+), {});
 
 export default class Provider {
   constructor(api, store) {
@@ -24,11 +22,12 @@ export default class Provider {
           const movieItems = createStoreStructure(movies);
           this._store.setItems(movieItems);
 
-          return movies;
+          return movies.map(MoviesModel.adaptMovieToClient);
         });
     }
 
-    return Promise.resolve(Object.values(this._store.getItems()));
+    const storedMovies = Object.values(this._store.getItems());
+    return Promise.resolve(storedMovies.map(MoviesModel.adaptMovieToClient));
   }
 
   putMovie(id, body) {
@@ -72,12 +71,11 @@ export default class Provider {
     if (isOnline()) {
       const storedMovies = this._store.getItems();
       const updatedMovies = getUpdatedMovies(storedMovies);
-      this._api.sync(updatedMovies)
+      return this._api.sync(updatedMovies)
         .then((response) => {
           this._store.setItems(createStoreStructure(response['updated']));
         });
     }
-
     return Promise.reject(new Error('Synchronization failed, server is unavailable.'));
   }
 }

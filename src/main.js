@@ -31,9 +31,7 @@ window.addEventListener('load', () => {
 document.addEventListener('DOMContentLoaded', () => {
   shellPresenter.init();
   apiWithProvider.pullMovies()
-    .then((movies) => movies.map(MoviesModel.adaptMovieToClient))
-    .then((movies) => moviesModel.setMovies(UpdateType.INIT, movies))
-    .catch(() => moviesModel.setMovies(UpdateType.INIT, []));
+    .then((movies) => moviesModel.setMovies(UpdateType.INIT, movies));
 });
 
 window.addEventListener('offline', () => {

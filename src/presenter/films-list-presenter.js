@@ -3,7 +3,6 @@ import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
 import {MessagesForEmptyFilters, NetworkMessages} from '../const';
-import {isOnline} from '../utils/common';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
@@ -74,11 +73,7 @@ export default class FilmsListPresenter {
 
     let message = MessagesForEmptyFilters[this._filter];
 
-    if(!isOnline()) {
-      message =  NetworkMessages.FILMS_LIST;
-    }
-
-    message = message || 'Application error, can\'t get data...';
+    message = message || NetworkMessages.ERROR;
 
     this._messageElement = new MessageForEmptyList(message);
     insertDOMElement(this._container, this._messageElement, Positions.AFTERBEGIN);
