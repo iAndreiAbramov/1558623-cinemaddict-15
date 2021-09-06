@@ -86,7 +86,6 @@ export default class MoviesModel extends AbstractObserver {
     delete updatedMovie['film_info']['totalRating'];
     delete updatedMovie['film_info']['release']['releaseCountry'];
 
-    // delete updatedMovie['userDetails'];
     delete updatedMovie['user_details']['alreadyWatched'];
     delete updatedMovie['user_details']['watchingDate'];
 
