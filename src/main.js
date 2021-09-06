@@ -3,13 +3,21 @@ import MoviesModel from './model/movies-model';
 import Api from './api/api';
 import {NetworkMessages, UpdateType} from './const';
 import {toast} from './utils/toast';
+import Provider from './api/provider';
+import Store from './api/store';
 
 const ENDPOINT = 'https://15.ecmascript.pages.academy/cinemaddict';
 const AUTHORIZATION = 'Basic jRp3s4Fv6Hh9Zv77';
+const STORE_PREFIX = 'cinemaddict-localstorage';
+const STORE_VER = 'v1';
+const STORE_NAME = `${STORE_PREFIX}-${STORE_VER}`;
+
 const moviesModel = new MoviesModel();
 const api = new Api(ENDPOINT, AUTHORIZATION);
-const shellPresenter = new ShellPresenter(moviesModel, api);
+const store = new Store(STORE_NAME, window.localStorage);
+const apiWithProvider = new Provider(api, store);
 
+const shellPresenter = new ShellPresenter(moviesModel, apiWithProvider);
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
@@ -22,7 +30,8 @@ window.addEventListener('load', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   shellPresenter.init();
-  api.pullMovies()
+  apiWithProvider.pullMovies()
+    .then((movies) => movies.map(MoviesModel.adaptMovieToClient))
     .then((movies) => moviesModel.setMovies(UpdateType.INIT, movies))
     .catch(() => moviesModel.setMovies(UpdateType.INIT, []));
 });
@@ -35,4 +44,5 @@ window.addEventListener('offline', () => {
 window.addEventListener('online', () => {
   document.title = document.title.replace(' [offline]', '');
   toast(NetworkMessages.CONNECT);
+  apiWithProvider.sync();
 });

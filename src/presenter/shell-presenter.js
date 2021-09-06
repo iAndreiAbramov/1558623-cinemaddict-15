@@ -18,6 +18,7 @@ import {ChartOptions} from '../const';
 import {filterMoviesByPeriod} from '../utils/date';
 import StatsSummary from '../view/stats-summary';
 import LoadingMessage from '../view/loading-message';
+import MoviesModel from '../model/movies-model';
 
 export default class ShellPresenter {
   constructor(moviesModel, api) {
@@ -257,9 +258,8 @@ export default class ShellPresenter {
     if (this._extraPresenter) {
       this._extraPresenter.clear();
     }
-    const extraContainers = new ExtraPresenter(this._getMovies());
-    extraContainers.init();
-    this._extraPresenter = extraContainers;
+    this._extraPresenter = new ExtraPresenter(this._getMovies());
+    this._extraPresenter.init();
   }
 
   _handleSortTypeChange(option) {
@@ -311,10 +311,10 @@ export default class ShellPresenter {
         getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-      this._api.putMovie(id, this._moviesModel.adaptMovieToServer(updatedMovie))
+      this._api.putMovie(id, MoviesModel.adaptMovieToServer(updatedMovie))
         .then((movie) => this._moviesModel.updateMovie(
           UpdateType.ALL_LISTS_SOFT,
-          this._moviesModel.adaptMovieToClient(movie),
+          MoviesModel.adaptMovieToClient(movie),
         ));
     }
   }

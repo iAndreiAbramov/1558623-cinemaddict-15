@@ -78,6 +78,8 @@ export default class FilmsListPresenter {
       message =  NetworkMessages.FILMS_LIST;
     }
 
+    message = message || 'Application error, can\'t get data...';
+
     this._messageElement = new MessageForEmptyList(message);
     insertDOMElement(this._container, this._messageElement, Positions.AFTERBEGIN);
   }

@@ -32,9 +32,9 @@ export default class ExtraPresenter {
   }
 
   _renderTopRated() {
-    let data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
-    data = data.filter((item) => item.filmInfo.totalRating);
-    if (!data.length || !isOnline()) {
+    let data = sortData(this._data, 'rating').filter((item) => item.filmInfo.totalRating);
+    data = data.slice(0, this._cardsNumberToShow);
+    if (!data.length) {
       this._topRatedContainer.closest('section').remove();
       return;
     }
@@ -47,9 +47,9 @@ export default class ExtraPresenter {
   }
 
   _renderMostCommented() {
-    let data = sortData(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
-    data = data.filter((item) => item.comments.length);
-    if (!data.length || !isOnline()) {
+    let data = sortData(this._data, 'commentsNumber').filter((item) => item.comments.length);
+    data = data.slice(0, this._cardsNumberToShow);
+    if (!data.length) {
       this._mostCommentedContainer.closest('section').remove();
       return;
     }

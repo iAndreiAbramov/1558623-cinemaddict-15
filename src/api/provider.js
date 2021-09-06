@@ -1,13 +1,12 @@
 import {isOnline} from '../utils/common';
+import MoviesModel from '../model/movies-model';
 
-const getSyncedMovies = () => {
-
-};
+const getUpdatedMovies = (movies) => Object.values(movies).filter((item) => item.user_details);
 
 const createStoreStructure = (data) => {
   return data.reduce((acc, cur) => {
     return Object.assign({}, acc, {
-      [cur.id]: cur,
+      [cur.id]: MoviesModel.adaptMovieToClient(cur),
     });
   }, {});
 };
@@ -20,27 +19,65 @@ export default class Provider {
 
   pullMovies() {
     if (isOnline()) {
-      this._api.pullMovies();
-    }
-  };
+      return this._api.pullMovies()
+        .then((movies) => {
+          const movieItems = createStoreStructure(movies);
+          this._store.setItems(movieItems);
 
-  putMovie(id, body) {};
+          return movies;
+        });
+    }
+
+    return Promise.resolve(Object.values(this._store.getItems()));
+  }
+
+  putMovie(id, body) {
+    if (isOnline()) {
+      return this._api.putMovie(id, body)
+        .then((newMovie) => {
+          this._store.setItem(id, newMovie);
+          return newMovie;
+        });
+    }
+
+    this._store.setItem(id, Object.assign({}, body));
+    return Promise.resolve(body);
+  }
 
   pullComments(movieId) {
     if (isOnline()) {
-      this._api.pullMovies();
+      return this._api.pullComments(movieId);
     }
-  };
 
-  postComment(movieId, comment) {};
+    return Promise.reject('Can\'t load comments while disconnected.');
+  }
 
-  deleteComment(commentId) {};
+  postComment(movieId, comment) {
+    if (isOnline()) {
+      return this._api.postComment(movieId, comment);
+    }
 
-  sync(body) {};
+    return Promise.reject('Can\'t add comments while disconnected.');
+  }
 
-  _load() {};
+  deleteComment(commentId) {
+    if (isOnline()) {
+      return this._api.deleteComment(commentId);
+    }
 
-  _isOnline() {
+    return Promise.reject('Can\'t delete comment while disconnected.');
+  }
 
+  sync() {
+    if (isOnline()) {
+      const storedMovies = this._store.getItems();
+      const updatedMovies = getUpdatedMovies(storedMovies);
+      this._api.sync(updatedMovies)
+        .then((response) => {
+          this._store.setItems(createStoreStructure(response['updated']));
+        });
+    }
+
+    return Promise.reject(new Error('Synchronization failed, server is unavailable.'));
   }
 }

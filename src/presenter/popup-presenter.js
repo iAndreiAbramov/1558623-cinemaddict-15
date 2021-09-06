@@ -8,6 +8,7 @@ import {NetworkMessages, UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
 import WaitOverlay from '../view/wait-overlay';
 import {toast} from '../utils/toast';
+import MoviesModel from '../model/movies-model';
 
 const COMMENTS_DELETION_COUNT = 1;
 
@@ -105,8 +106,8 @@ export default class PopupPresenter {
       this._movieItem,
     );
     updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-    this._api.putMovie(this._movieId, this._moviesModel.adaptMovieToServer(updatedMovie))
-      .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)))
+    this._api.putMovie(this._movieId, MoviesModel.adaptMovieToServer(updatedMovie))
+      .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, MoviesModel.adaptMovieToClient(movie)))
       .then((movie) => this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, movie))
       .then(() => this._movieItem = updatedMovie);
   }
@@ -178,7 +179,7 @@ export default class PopupPresenter {
         this._comments = [...response.comments];
         const updatedMovie = Object.assign(
           {},
-          this._moviesModel.adaptMovieToClient(response.movie),
+          MoviesModel.adaptMovieToClient(response.movie),
         );
         this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
         this._movieItem = updatedMovie;
