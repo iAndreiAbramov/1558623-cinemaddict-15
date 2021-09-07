@@ -7,7 +7,7 @@ export default class MoviesModel extends AbstractObserver {
   }
 
   setMovies(updateType, movies) {
-    this._movies = movies.slice().map((movie) => this.adaptMovieToClient(movie));
+    this._movies = movies.slice();
     this._notify(updateType, this._movies);
   }
 
@@ -15,7 +15,25 @@ export default class MoviesModel extends AbstractObserver {
     return this._movies;
   }
 
-  adaptMovieToClient(movie) {
+  updateMovie(updateType, updateBody = null) {
+    if (updateBody) {
+      const movieIndex = this._movies.findIndex((item) => +item.id === +updateBody.id);
+
+      if (movieIndex === -1) {
+        throw new Error(`Update error. Item with index ${updateBody.id} does not exist`);
+      }
+
+      this._movies = [
+        ...this._movies.slice(0, movieIndex),
+        updateBody,
+        ...this._movies.slice(movieIndex + 1),
+      ];
+    }
+
+    this._notify(updateType, updateBody);
+  }
+
+  static adaptMovieToClient(movie) {
     const updatedMovie = Object.assign(
       {},
       movie,
@@ -45,7 +63,7 @@ export default class MoviesModel extends AbstractObserver {
     return updatedMovie;
   }
 
-  adaptMovieToServer(movie) {
+  static adaptMovieToServer(movie) {
     const updatedMovie = Object.assign(
       {},
       movie,
@@ -68,28 +86,9 @@ export default class MoviesModel extends AbstractObserver {
     delete updatedMovie['film_info']['totalRating'];
     delete updatedMovie['film_info']['release']['releaseCountry'];
 
-    delete updatedMovie['user_details']['userDetails'];
     delete updatedMovie['user_details']['alreadyWatched'];
     delete updatedMovie['user_details']['watchingDate'];
 
     return updatedMovie;
-  }
-
-  updateMovie(updateType, updateBody = null) {
-    if (updateBody) {
-      const movieIndex = this._movies.findIndex((item) => +item.id === +updateBody.id);
-
-      if (movieIndex === -1) {
-        throw new Error(`Update error. Item with index ${updateBody.id} does not exist`);
-      }
-
-      this._movies = [
-        ...this._movies.slice(0, movieIndex),
-        updateBody,
-        ...this._movies.slice(movieIndex + 1),
-      ];
-    }
-
-    this._notify(updateType, updateBody);
   }
 }

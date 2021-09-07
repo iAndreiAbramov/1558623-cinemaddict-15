@@ -38,3 +38,5 @@ export const getTopGenre = (arrayOfMovies) => {
 export const getMovieById = (arrayOfMovies, identifier) => arrayOfMovies.find((item) => +item.id === +identifier);
 
 export const getCommentIndexById = (comments, identifier) => comments.findIndex((item) => +item.id === +identifier);
+
+export const isOnline = () => window.navigator.onLine;

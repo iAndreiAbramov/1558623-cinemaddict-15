@@ -2,11 +2,13 @@ import Popup from '../view/popup';
 import PopupControls from '../view/popup-controls';
 import CommentItem from '../view/popup-comment';
 import {insertDOMElement, Positions, replaceDOMElement} from '../utils/render';
-import {getCommentIndexById, isEscEvent} from '../utils/common';
+import {getCommentIndexById, isEscEvent, isOnline} from '../utils/common';
 import PopupNewCommentForm from '../view/popup-new-comment-form';
-import {UpdateType} from '../const';
+import {NetworkMessages, UpdateType} from '../const';
 import {sortCommentsByDate} from '../utils/sort-data';
 import WaitOverlay from '../view/wait-overlay';
+import {toast} from '../utils/toast';
+import MoviesModel from '../model/movies-model';
 
 const COMMENTS_DELETION_COUNT = 1;
 
@@ -104,8 +106,8 @@ export default class PopupPresenter {
       this._movieItem,
     );
     updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-    this._api.putMovie(this._movieId, this._moviesModel.adaptMovieToServer(updatedMovie))
-      .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, this._moviesModel.adaptMovieToClient(movie)))
+    this._api.putMovie(this._movieId, MoviesModel.adaptMovieToServer(updatedMovie))
+      .then((movie) => this._moviesModel.updateMovie(UpdateType.ALL_LISTS_SOFT, MoviesModel.adaptMovieToClient(movie)))
       .then((movie) => this._moviesModel.updateMovie(UpdateType.POPUP_CONTROLS, movie))
       .then(() => this._movieItem = updatedMovie);
   }
@@ -129,6 +131,10 @@ export default class PopupPresenter {
       .then(() => {
         this._waitOverlay.getElement().remove();
         this._enableNewCommentForm();
+      })
+      .catch(() => {
+        this._waitOverlay.getElement().remove();
+        toast(NetworkMessages.COMMENTS_LOAD);
       });
   }
 
@@ -173,7 +179,7 @@ export default class PopupPresenter {
         this._comments = [...response.comments];
         const updatedMovie = Object.assign(
           {},
-          this._moviesModel.adaptMovieToClient(response.movie),
+          MoviesModel.adaptMovieToClient(response.movie),
         );
         this._moviesModel.updateMovie(UpdateType.COMMENT, updatedMovie);
         this._movieItem = updatedMovie;
@@ -188,6 +194,7 @@ export default class PopupPresenter {
         this._enableNewCommentForm();
       })
       .catch(() => {
+        toast(NetworkMessages.COMMENT_ADD);
         this._enableNewCommentForm();
         this._waitOverlay.getElement().remove();
         this._newCommentForm.isRejected = true;
@@ -196,14 +203,20 @@ export default class PopupPresenter {
       });
   }
 
-  _renderCommentOnDeletion(id, flag) {
+  _renderCommentOnDeletion(id, isDeleting = false, online = true) {
     const index = getCommentIndexById(this._comments, id);
-    const updatedComment = new CommentItem(this._comments[index], flag);
+    const updatedComment = new CommentItem(this._comments[index], isDeleting, online);
+    updatedComment.setCommentDeleteCallback(this._handleCommentDeletion);
     replaceDOMElement(this._commentsContainer, updatedComment.getElement(), this._shownComments.get(id).getElement());
     this._shownComments.set(id, updatedComment);
   }
 
   _handleCommentDeletion(id) {
+    if (!isOnline()) {
+      toast(NetworkMessages.COMMENT_DELETE);
+      this._renderCommentOnDeletion(id, false, false);
+      return;
+    }
     this._disableNewCommentForm();
     this._renderCommentOnDeletion(id, true);
     this._api.deleteComment(id)

@@ -2,13 +2,14 @@ import {formatDateForComments} from '../utils/date';
 import AbstractView from './abstract-view';
 import {EmotionsImages} from '../const';
 
-const getCommentItemHtml = (commentDataItem, isDeleting) => {
+const getCommentItemHtml = (commentDataItem, isDeleting, isOnline) => {
   const {author, comment, date, emotion} = commentDataItem;
   const relativeDate = formatDateForComments(date);
   const deletingText = isDeleting ? 'Deleting' : 'Delete';
   const disabled = isDeleting ? 'disabled' : '';
+  const shake = isOnline ? 'film-details__comment' : 'film-details__comment shake';
   return `
-    <li class="film-details__comment">
+    <li class="${shake}">
       <span class="film-details__comment-emoji">
         <img src="${EmotionsImages[emotion]}" width="55" height="55" alt="emoji-${emotion}">
       </span>
@@ -25,15 +26,16 @@ const getCommentItemHtml = (commentDataItem, isDeleting) => {
 };
 
 export default class CommentItem extends AbstractView {
-  constructor(commentDataItem, isDeleting = false) {
+  constructor(commentDataItem, isDeleting = false, isOnline = true) {
     super();
     this._commentDataItem = commentDataItem;
+    this._isOnline  = isOnline;
     this._isDeleting = isDeleting;
     this._commentDeleteCallback = this._commentDeleteCallback.bind(this);
   }
 
   getTemplate() {
-    return getCommentItemHtml(this._commentDataItem, this._isDeleting);
+    return getCommentItemHtml(this._commentDataItem, this._isDeleting, this._isOnline);
   }
 
   get id() {

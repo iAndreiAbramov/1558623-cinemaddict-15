@@ -18,6 +18,7 @@ import {ChartOptions} from '../const';
 import {filterMoviesByPeriod} from '../utils/date';
 import StatsSummary from '../view/stats-summary';
 import LoadingMessage from '../view/loading-message';
+import MoviesModel from '../model/movies-model';
 
 export default class ShellPresenter {
   constructor(moviesModel, api) {
@@ -88,10 +89,11 @@ export default class ShellPresenter {
       case UpdateType.ALL_LISTS_SOFT:
         this._renderFiltersMenu();
         this._renderUserRank();
-        this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]));
+        this._renderFilmsList(this._getMovies(Filters[this._currentMenuOption]), this._currentMenuOption);
         this._renderExtraContainers();
         break;
       case UpdateType.COMMENT:
+        this._renderFilmsContainers();
         this._filmListPresenter.init(this._getMovies(Filters[this._currentMenuOption]));
         this._renderExtraContainers();
         break;
@@ -233,7 +235,7 @@ export default class ShellPresenter {
 
   _renderFilmsContainers() {
     if (this._listsContainer) {
-      return;
+      this._listsContainer.getElement().remove();
     }
     this._listsContainer = new ListsContainer();
     this._listsContainer.setPopupOpenCallback(this._handlePopupOpen);
@@ -256,9 +258,8 @@ export default class ShellPresenter {
     if (this._extraPresenter) {
       this._extraPresenter.clear();
     }
-    const extraContainers = new ExtraPresenter(this._getMovies());
-    extraContainers.init();
-    this._extraPresenter = extraContainers;
+    this._extraPresenter = new ExtraPresenter(this._getMovies());
+    this._extraPresenter.init();
   }
 
   _handleSortTypeChange(option) {
@@ -268,15 +269,16 @@ export default class ShellPresenter {
 
   _handleFilterChange(evt) {
     evt.preventDefault();
-    this._renderFilmsContainers();
     this._currentScreen = evt.target.dataset.screen;
     const filter = evt.target.dataset.option;
     if (this._currentMenuOption === filter) {
       return;
     }
+    this._renderFilmsContainers();
     this._currentMenuOption = filter;
     this._currentSortOption = SortOptions.DEFAULT;
     this._renderFilmsList(this._getMovies(Filters[filter]), filter);
+    this._renderExtraContainers();
     this._renderFiltersMenu();
     this._renderSortMenu();
   }
@@ -309,10 +311,10 @@ export default class ShellPresenter {
         getMovieById(this._getMovies(), id),
       );
       updatedMovie.userDetails[option] = !updatedMovie.userDetails[option];
-      this._api.putMovie(id, this._moviesModel.adaptMovieToServer(updatedMovie))
+      this._api.putMovie(id, MoviesModel.adaptMovieToServer(updatedMovie))
         .then((movie) => this._moviesModel.updateMovie(
           UpdateType.ALL_LISTS_SOFT,
-          this._moviesModel.adaptMovieToClient(movie),
+          MoviesModel.adaptMovieToClient(movie),
         ));
     }
   }

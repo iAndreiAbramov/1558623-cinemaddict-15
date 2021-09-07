@@ -31,7 +31,12 @@ export default class ExtraPresenter {
   }
 
   _renderTopRated() {
-    const data = sortData(this._data, 'rating').slice(0, this._cardsNumberToShow);
+    let data = sortData(this._data, 'rating').filter((item) => item.filmInfo.totalRating);
+    data = data.slice(0, this._cardsNumberToShow);
+    if (!data.length) {
+      this._topRatedContainer.closest('section').remove();
+      return;
+    }
     data.forEach((dataItem) => {
       const filmCard = new FilmCard(dataItem);
       const {id} = dataItem;
@@ -41,7 +46,12 @@ export default class ExtraPresenter {
   }
 
   _renderMostCommented() {
-    const data = sortData(this._data, 'commentsNumber').slice(0, this._cardsNumberToShow);
+    let data = sortData(this._data, 'commentsNumber').filter((item) => item.comments.length);
+    data = data.slice(0, this._cardsNumberToShow);
+    if (!data.length) {
+      this._mostCommentedContainer.closest('section').remove();
+      return;
+    }
     data.forEach((dataItem) => {
       const filmCard = new FilmCard(dataItem);
       const {id} = dataItem;

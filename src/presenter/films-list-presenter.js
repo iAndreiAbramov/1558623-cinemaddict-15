@@ -2,7 +2,7 @@ import FilmCard from '../view/film-card';
 import {Positions, insertDOMElement} from '../utils/render';
 import MessageForEmptyList from '../view/message-for-empty-list';
 import MoreButton from '../view/more-button';
-import {MessagesForEmptyFilters} from '../const';
+import {MessagesForEmptyFilters, NetworkMessages} from '../const';
 
 const DEFAULT_CARDS_NUMBER = 5;
 const CARDS_COUNT_STEP = 5;
@@ -70,7 +70,11 @@ export default class FilmsListPresenter {
     if (this._messageElement) {
       this._messageElement.getElement().remove();
     }
-    const message = MessagesForEmptyFilters[this._filter];
+
+    let message = MessagesForEmptyFilters[this._filter];
+
+    message = message || NetworkMessages.ERROR;
+
     this._messageElement = new MessageForEmptyList(message);
     insertDOMElement(this._container, this._messageElement, Positions.AFTERBEGIN);
   }
