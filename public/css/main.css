@@ -1123,17 +1123,24 @@ button {
 
 .spinner-wrapper {
   position: fixed;
-  top: 50vh;
-  left: 50vw;
+  top: 50%;
+  left: 50%;
   width: 200px;
   height: 200px;
-  transform: translate(-50%, -50%);
+  border: 8px solid #fbd50e;
+  border-right: none;
+  border-radius: 50%;
   z-index: 102;
+  animation: rotate 0.5s linear infinite;
 }
 
-.spinner-wrapper img  {
-  width: 100%;
-  height: 100%;
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes shake {
