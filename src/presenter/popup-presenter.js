@@ -40,6 +40,7 @@ export default class PopupPresenter {
     this._handleCommentDeletion = this._handleCommentDeletion.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleOnline = this._handleOnline.bind(this);
 
     this._moviesModel.addObserver(this._handleModelEvent);
   }
@@ -61,6 +62,9 @@ export default class PopupPresenter {
       case UpdateType.COMMENT:
         this._updateNewCommentForm();
         break;
+      case UpdateType.COMMENT_INIT:
+        toast('Comments list was updated!');
+        break;
     }
   }
 
@@ -80,6 +84,7 @@ export default class PopupPresenter {
     this._renderNewCommentForm();
     this._disableNewCommentForm();
     document.addEventListener('keydown', this._handleEscKeydown);
+    window.addEventListener('online', this._handleOnline);
     this._closeButton.addEventListener('click', this._closePopupByClick);
   }
 
@@ -115,10 +120,10 @@ export default class PopupPresenter {
   _renderComments() {
     insertDOMElement(document.body, this._waitOverlay, Positions.BEFOREEND);
     this._shownComments.forEach((comment) => {
-      comment.remove();
+      comment.getElement().remove();
     });
     this._shownComments.clear();
-    this._getCommentsFromApi()
+    return this._getCommentsFromApi()
       .then(() => {
         this._comments = sortCommentsByDate(this._comments);
         this._comments.forEach((commentItem) => {
@@ -238,6 +243,14 @@ export default class PopupPresenter {
       });
   }
 
+  _handleOnline() {
+    return this._renderComments()
+      .then(() => {
+        const updatedMovie = Object.assign({}, this._movieItem);
+        this._moviesModel.updateMovie(UpdateType.COMMENT_INIT, updatedMovie);
+      });
+  }
+
   _handleEscKeydown(keyDownEvt) {
     if (isEscEvent(keyDownEvt)) {
       this._closePopup();
@@ -251,6 +264,7 @@ export default class PopupPresenter {
   _closePopup() {
     this._clear();
     document.removeEventListener('keydown', this._handleEscKeydown);
+    window.removeEventListener('online', this._handleOnline);
     document.body.style.overflow = '';
   }
 }
