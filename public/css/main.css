@@ -1114,7 +1114,7 @@ button {
 .wait-overlay {
   position: fixed;
   background-color: rgba(0.5, 0.5, 0.5, 0.5);
-  z-index: 999;
+  z-index: 101;
   width: 100%;
   height: 100%;
   top: 0;
@@ -1128,6 +1128,7 @@ button {
   width: 200px;
   height: 200px;
   transform: translate(-50%, -50%);
+  z-index: 102;
 }
 
 .spinner-wrapper img  {
@@ -1172,5 +1173,5 @@ button {
   background-color: red;
   font-size: 20px;
   text-align: center;
-  z-index: 999;
+  z-index: 100;
 }
