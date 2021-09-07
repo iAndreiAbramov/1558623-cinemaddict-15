@@ -1,6 +1,7 @@
 import FilmCard from '../view/film-card';
 import {insertDOMElement, Positions} from '../utils/render';
 import {sortData} from '../utils/sort-data';
+import {getRandomFilms} from '../utils/common';
 
 const NUMBER_OF_EXTRA_CARDS = 2;
 
@@ -32,11 +33,28 @@ export default class ExtraPresenter {
 
   _renderTopRated() {
     let data = sortData(this._data, 'rating').filter((item) => item.filmInfo.totalRating);
-    data = data.slice(0, this._cardsNumberToShow);
+
+    let ratingIsEqual = false;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i].filmInfo.totalRating !== data[i - 1].filmInfo.totalRating ) {
+        ratingIsEqual = false;
+        break;
+      } else {
+        ratingIsEqual = true;
+      }
+    }
+
+    if (ratingIsEqual) {
+      data = getRandomFilms(data, this._cardsNumberToShow);
+    } else {
+      data = data.slice(0, this._cardsNumberToShow);
+    }
+
     if (!data.length) {
       this._topRatedContainer.closest('section').remove();
       return;
     }
+
     data.forEach((dataItem) => {
       const filmCard = new FilmCard(dataItem);
       const {id} = dataItem;
@@ -47,7 +65,23 @@ export default class ExtraPresenter {
 
   _renderMostCommented() {
     let data = sortData(this._data, 'commentsNumber').filter((item) => item.comments.length);
-    data = data.slice(0, this._cardsNumberToShow);
+
+    let commentsNumberIsEqual = false;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i].comments.length !== data[i - 1].comments.length  ) {
+        commentsNumberIsEqual = false;
+        break;
+      } else {
+        commentsNumberIsEqual = true;
+      }
+    }
+
+    if (commentsNumberIsEqual) {
+      data = getRandomFilms(data, this._cardsNumberToShow);
+    } else {
+      data = data.slice(0, this._cardsNumberToShow);
+    }
+
     if (!data.length) {
       this._mostCommentedContainer.closest('section').remove();
       return;
