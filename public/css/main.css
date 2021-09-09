@@ -1127,7 +1127,7 @@ button {
   left: 50%;
   width: 200px;
   height: 200px;
-  border: 8px solid #fbd50e;
+  border: 10px solid #fbd50e;
   border-right: none;
   border-radius: 50%;
   z-index: 102;
