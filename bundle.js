@@ -40117,7 +40117,7 @@ const shellPresenter = new _presenter_shell_presenter__WEBPACK_IMPORTED_MODULE_0
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('./1558623-cinemaddict-15/sw.js')
       .catch((error) => {
         throw new Error(error);
       });
