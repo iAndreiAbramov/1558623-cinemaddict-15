@@ -40119,7 +40119,6 @@ window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register(
       './sw.js',
-      {scope: '/1558623-cinemaddict-15/'},
     )
       .catch((error) => {
         throw new Error(error);
