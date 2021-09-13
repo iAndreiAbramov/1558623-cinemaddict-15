@@ -21,7 +21,9 @@ const shellPresenter = new ShellPresenter(moviesModel, apiWithProvider);
 
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register(
+      './sw.js',
+    )
       .catch((error) => {
         throw new Error(error);
       });
